@@ -65,7 +65,7 @@ Superadmin credentials must **never** be committed to GitHub. The repository is 
        Remove-Variable secureDsn, ptr -ErrorAction SilentlyContinue
    }
    ```
-5. Sign out and sign in again using the email/password you chose. Open the [Superadmin Control Room](https://drishti-five.vercel.app/admin.html).
+5. Sign out and sign in again using the email/password you chose. Open the [Superadmin Control Room](https://dristhi-five.vercel.app/admin.html).
 
 The script promotes only an existing account to `superadmin`, serialises simultaneous bootstrap attempts and refuses to run if an `admin` or `superadmin` account already exists. It does not generate, store, or print a password. Keep the database connection string out of terminal screenshots and shared logs.
 
