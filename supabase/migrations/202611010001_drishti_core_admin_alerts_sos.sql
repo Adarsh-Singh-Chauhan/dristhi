@@ -73,8 +73,18 @@ CREATE TABLE IF NOT EXISTS public.sos_reports (
   review_notes TEXT,
   reviewed_by TEXT REFERENCES public.users(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  updated_at TEXT NOT NULL,
+  location_shared BOOLEAN NOT NULL DEFAULT FALSE,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  location_accuracy_m DOUBLE PRECISION
 );
+
+-- Additive upgrades for databases that applied the earlier SOS schema.
+ALTER TABLE public.sos_reports ADD COLUMN IF NOT EXISTS location_shared BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE public.sos_reports ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+ALTER TABLE public.sos_reports ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
+ALTER TABLE public.sos_reports ADD COLUMN IF NOT EXISTS location_accuracy_m DOUBLE PRECISION;
 
 CREATE INDEX IF NOT EXISTS idx_sos_status_created
   ON public.sos_reports(status, created_at DESC);
@@ -91,6 +101,30 @@ CREATE TABLE IF NOT EXISTS public.admin_audit_log (
 
 CREATE INDEX IF NOT EXISTS idx_admin_audit_created
   ON public.admin_audit_log(created_at DESC);
+
+-- Defensive network indicators entered by an authorised Superadmin.
+-- These are public IP/domain observables, never automatically collected visitor IPs.
+CREATE TABLE IF NOT EXISTS public.network_indicators (
+  id TEXT PRIMARY KEY,
+  indicator_type TEXT NOT NULL CHECK (indicator_type IN ('ip', 'domain')),
+  indicator TEXT NOT NULL,
+  severity TEXT NOT NULL DEFAULT 'medium' CHECK (severity IN ('low', 'medium', 'high', 'critical')),
+  status TEXT NOT NULL DEFAULT 'under_review' CHECK (status IN ('under_review', 'confirmed', 'false_positive')),
+  location_label TEXT,
+  country TEXT,
+  latitude DOUBLE PRECISION,
+  longitude DOUBLE PRECISION,
+  source_label TEXT NOT NULL,
+  notes TEXT,
+  created_by TEXT REFERENCES public.users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_network_indicators_created
+  ON public.network_indicators(created_at DESC);
+
+ALTER TABLE public.network_indicators ENABLE ROW LEVEL SECURITY;
 
 -- The application connects to PostgreSQL from the FastAPI server using DATABASE_URL.
 -- No browser/anon-key access is granted to these private tables.
