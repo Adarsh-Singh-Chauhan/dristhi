@@ -153,7 +153,7 @@
       }
     });
     lastNetworkIndicators.forEach((item) => {
-      if (Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude))) {
+      if (item.latitude !== null && item.longitude !== null && Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude))) {
         points.push({ kind: "ioc", lat: Number(item.latitude), lon: Number(item.longitude), label: item.indicator_type.toUpperCase() + " indicator · " + item.indicator + (item.location_label ? " · " + item.location_label : "") });
       }
     });
