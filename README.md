@@ -28,6 +28,29 @@
 
 The frontend and FastAPI service are deployed on Vercel. Anonymous message analysis is available. The production health endpoint currently reports `storage: unconfigured`: user registration, sign-in, saved history, in-app alerts, SOS persistence and the role-restricted admin console remain unavailable until a persistent PostgreSQL `DATABASE_URL` is added to the Vercel project. The Alerts & SOS workspace and Admin Console pages, API routes, database migration and first-admin setup procedure are now in the repository and await database activation. Local development continues to use SQLite by default. The current detector is a deterministic, explainable rule-based baseline—not a trained AI model or an external fact-checking service.
 
+## Mobile user app & single-Superadmin console
+
+The existing browser workspace is also packaged as an **installable Progressive Web App (PWA)** for the user experience. It keeps the same analysis, account, history, alerts and SOS workflows rather than introducing a second disconnected codebase.
+
+- **User app:** responsive mobile layout, home-screen installation, thumb-friendly navigation, app icon and a small offline app shell. API actions still require a network connection.
+- **Superadmin:** a separate restricted control room at [`/admin.html`](https://drishti-five.vercel.app/admin.html) for account-level overview, SOS review and in-app notices.
+- **One privileged account:** the bootstrap script promotes one existing registered account to `superadmin`. New registrations remain ordinary `user` accounts. Legacy `admin` role records continue to work during the transition.
+- **No public admin signup:** never publish the Superadmin email, password, database URL or token in this repository.
+
+### Install the user app on Android
+
+1. Open the [DRISHTI workspace](https://drishti-five.vercel.app/) in Chrome.
+2. Tap **Install app** when the browser offers it, or open the browser menu (⋮) and choose **Install app** / **Add to Home screen**.
+3. Launch DRISHTI from the new home-screen icon.
+
+The PWA shell can load previously cached interface files offline. Sign-in, message analysis, saved history, alerts and SOS require the API and configured persistent storage.
+
+### Superadmin activation
+
+Follow [the Supabase Free setup guide](docs/SUPABASE-FREE-SETUP.md). Register the intended owner account first, then run `scripts/promote_first_admin.py` locally with a private `DATABASE_URL`. The script serialises bootstrap attempts, refuses a second privileged account and never generates or stores a password.
+
+**Production limitation:** if `/health` still reports `storage: unconfigured`, server-side account creation, analysis history, persistent SOS and Superadmin APIs remain disabled until PostgreSQL is connected. The PWA packaging does not bypass this requirement.
+
 ## 01 · Project overview
 
 **DRISHTI** is a cybersecurity-oriented information-integrity analysis prototype. It explores how suspicious messaging patterns, urgency-based forwards, unverified authority claims, panic language and shortened links can be surfaced for further human verification.
