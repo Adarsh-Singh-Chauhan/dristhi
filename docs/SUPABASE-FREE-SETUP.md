@@ -39,11 +39,11 @@ The migration enables Row Level Security and creates no public policies. The app
 
 If the Free project pauses, restore it from the dashboard. Do not upgrade simply to prevent pausing; restoration is the zero-cost path.
 
-## 4. Create your first admin login safely
+## 4. Create the single Superadmin login safely
 
-There is **no default admin email or password**. You create the login yourself. The login credentials are the email address and password you choose during registration; the bootstrap script only promotes that existing account to the admin role.
+There is **no default Superadmin email or password**. You create the login yourself. The login credentials are the email address and password you choose during registration; the bootstrap script only promotes that existing account to the `superadmin` role.
 
-Admin credentials must **never** be committed to GitHub. The repository is public, so storing a username/password there would expose the admin account.
+Superadmin credentials must **never** be committed to GitHub. The repository is public, so storing a username/password there would expose the admin account.
 
 1. After PostgreSQL is connected and the health endpoint reports `storage: postgres`, open the live DRISHTI workspace and register using the email address you want as the administrator.
 2. Choose your own strong password and save it privately.
@@ -65,9 +65,9 @@ Admin credentials must **never** be committed to GitHub. The repository is publi
        Remove-Variable secureDsn, ptr -ErrorAction SilentlyContinue
    }
    ```
-5. Sign out and sign in again using the email/password you chose. Open [Admin Console](https://dristhi-five.vercel.app/admin.html).
+5. Sign out and sign in again using the email/password you chose. Open the [Superadmin Control Room](https://drishti-five.vercel.app/admin.html).
 
-The script promotes only an existing account and refuses to run if an admin already exists. It does not generate, store, or print a password. Keep the database connection string out of terminal screenshots and shared logs.
+The script promotes only an existing account to `superadmin`, serialises simultaneous bootstrap attempts and refuses to run if an `admin` or `superadmin` account already exists. It does not generate, store, or print a password. Keep the database connection string out of terminal screenshots and shared logs.
 
 ## 5. Zero-cost alerts and SOS scope
 
