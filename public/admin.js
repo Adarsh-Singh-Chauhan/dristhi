@@ -1,5 +1,8 @@
 (() => {
   const $ = (selector) => document.querySelector(selector);
+  const configuredApiBase = typeof window.DRISHTI_API_BASE === "string" ? window.DRISHTI_API_BASE.trim() : "";
+  const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const API_BASE = (configuredApiBase || (isLocalHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
   const tokenKey = "drishti_access_token";
   let token = sessionStorage.getItem(tokenKey) || "";
   const authPanel = $("#auth-panel");
@@ -8,7 +11,7 @@
   const api = async (path, options = {}) => {
     const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
     if (token) headers.Authorization = "Bearer " + token;
-    const response = await fetch(path, { ...options, headers });
+    const response = await fetch(API_BASE + path, { ...options, headers });
     const raw = await response.text();
     let data = {};
     try { data = raw ? JSON.parse(raw) : {}; } catch {}
