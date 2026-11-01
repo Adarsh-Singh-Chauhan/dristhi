@@ -59,7 +59,7 @@
   function renderTabs() {
     const items=currentSession.role==="admin"
       ? [["overview","Overview"],["cases","Case review"],["globe","Signal atlas"],["audit","Audit trail"]]
-      : [["overview","Overview"],["analyse","Analyse"],["cases","My case files"],["guide","How to use"]];
+      : [["overview","Overview"],["analyse","Analyse"],["cases","My case files"],["safety","Safety / SOS"],["guide","How to use"]];
     const nav=$("#demo-nav");nav.replaceChildren();
     items.forEach(([id,label])=>{const button=document.createElement("button");button.className="tab"+(id===activeTab?" active":"");button.textContent=label;button.type="button";button.addEventListener("click",()=>renderTab(id));nav.append(button)});
   }
@@ -75,6 +75,7 @@
       if(name==="overview") renderUserOverview(root);
       else if(name==="analyse") renderAnalyse(root);
       else if(name==="cases") renderUserCases(root);
+      else if(name==="safety") renderSafety(root);
       else renderGuide(root);
     }
   }
@@ -112,6 +113,26 @@
     card.append(el("div","meta",item.id+" · "+item.category.replace(/_/g," ").toUpperCase()));
     card.append(el("p","",item.detail));if(item.evidence)card.append(el("p","","Reviewer note: "+item.evidence));
     return card;
+  }
+  function renderSafety(root) {
+    const grid=el("div","content-grid");
+    const formPanel=el("section","panel");
+    formPanel.append(el("h3","","Safety & SOS demo"),el("p","","Explore how a user can prepare an internal review request. This demo does not contact any person or emergency service."));
+    const form=el("form","");
+    form.innerHTML='<div class="field"><label for="sos-title">Incident title</label><input id="sos-title" required maxlength="100" value="Suspicious public message reported"></div><div class="field"><label for="sos-detail">What happened?</label><textarea id="sos-detail" required minlength="10">I received a suspicious public message and would like it reviewed against an original source.</textarea></div><div class="field"><label><input id="sos-location" type="checkbox"> Include a fictional sample map point (demo only)</label></div><button class="btn primary" type="submit">Submit sample SOS →</button>';
+    const list=el("section","panel");list.append(el("h3","","My demo requests"),el("p","","Sample SOS requests stay in this browser tab only."));
+    const requests=[];
+    form.addEventListener("submit",(event)=>{
+      event.preventDefault();
+      const item={title:$("#sos-title").value,details:$("#sos-detail").value,location:$("#sos-location").checked?"Fictional demo coordinate · not device GPS":"Location not shared",status:"received"};
+      requests.unshift(item);
+      const card=el("article","case-card");card.append(el("div","case-head",item.title),el("div","meta",item.status.toUpperCase()+" · "+item.location),el("p","",item.details));list.append(card);
+      form.reset();
+      form.querySelector("#sos-title").value="Suspicious public message reported";
+      alert("Sample request added to the demo only. No external alert was sent.");
+    });
+    formPanel.append(form);grid.append(formPanel,list);root.append(grid);
+    const note=el("section","panel");note.style.marginTop="12px";note.append(el("h3","","Before using a real SOS"),el("p","","In production, precise GPS is requested only when the user explicitly opts in on the SOS form. DRISHTI's SOS is an internal review queue, not a police or emergency-service dispatch. For immediate danger, contact local emergency services directly."));root.append(note);
   }
   function renderGuide(root) {
     const panel=el("section","panel");panel.append(el("h3","","Use DRISHTI on your phone"),el("p","","1. Open the real workspace from the main website. 2. Sign in with your own account once persistent storage is configured. 3. Paste a public claim and inspect the reasons. 4. Verify the primary source before you share. 5. Create a case file only when it needs follow-up. 6. Follow your case status in My case files."));
