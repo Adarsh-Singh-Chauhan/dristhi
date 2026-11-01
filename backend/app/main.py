@@ -329,8 +329,9 @@ def require_user(user: Any | None = Depends(get_optional_user)) -> Any:
 
 
 def require_admin(user: Any = Depends(require_user)) -> Any:
-    if user["role"] != "admin":
-        raise HTTPException(status_code=403, detail="Administrator access is required.")
+    # "admin" remains accepted for accounts created by the earlier MVP bootstrap.
+    if user["role"] not in {"superadmin", "admin"}:
+        raise HTTPException(status_code=403, detail="Superadmin access is required.")
     return user
 
 
