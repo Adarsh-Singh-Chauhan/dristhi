@@ -39,7 +39,7 @@ def main() -> int:
         print("Sign in with the password you chose during registration.")
         return 0
     except Exception as exc:
-        print("Bootstrap failed: " + exc.__class__.__name__ + ": " + str(exc))
+        print("Bootstrap failed: " + exc.__class__.__name__ + ". Check the private connection settings locally.")
         return 1
 
 if __name__ == "__main__":
