@@ -357,6 +357,46 @@
   $("#refresh-history").addEventListener("click", loadHistory);
   $$(".nav-link").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view)));
 
+  const installButton = $("#install-app");
+  let installPrompt = null;
+  if (installButton) {
+    const alreadyInstalled = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+    if (alreadyInstalled) {
+      installButton.textContent = "App installed ✓";
+      installButton.disabled = true;
+    }
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      installButton.textContent = "Install app ↥";
+    });
+    installButton.addEventListener("click", async () => {
+      if (!installPrompt) {
+        toast("To install: open your browser menu (⋮) and choose Install app or Add to Home screen.");
+        return;
+      }
+      installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      installPrompt = null;
+      if (choice && choice.outcome === "accepted") {
+        installButton.textContent = "App installed ✓";
+        installButton.disabled = true;
+      }
+    });
+    window.addEventListener("appinstalled", () => {
+      installButton.textContent = "App installed ✓";
+      installButton.disabled = true;
+      toast("DRISHTI is installed on this device.");
+    });
+  }
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch((error) => {
+        console.warn("DRISHTI offline shell was not registered:", error);
+      });
+    });
+  }
+
   checkApi();
   loadMe();
 })();
