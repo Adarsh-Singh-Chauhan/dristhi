@@ -35,10 +35,10 @@
     if (!token) return;
     try {
       const user = await api("/api/v1/auth/me");
-      if (user.role !== "admin") {
+      if (!["superadmin", "admin"].includes(user.role)) {
         authPanel.classList.add("hidden");
         denied.classList.remove("hidden");
-        $("#denied-message").textContent = "Signed in as " + user.email + ", but this account has no admin role. Follow the first-admin setup guide.";
+        $("#denied-message").textContent = "Signed in as " + user.email + ", but this account does not have Superadmin access. Follow the first-Superadmin setup guide.";
         return;
       }
       await openDashboard();
@@ -57,10 +57,10 @@
       token = result.access_token;
       sessionStorage.setItem(tokenKey, token);
       const user = await api("/api/v1/auth/me");
-      if (user.role !== "admin") {
+      if (!["superadmin", "admin"].includes(user.role)) {
         token = "";
         sessionStorage.removeItem(tokenKey);
-        showAuthMessage("This account is not an administrator. Use the first-admin setup guide.");
+        showAuthMessage("This account is not the Superadmin account. Use the first-Superadmin setup guide.");
         return;
       }
       await openDashboard();
@@ -140,5 +140,6 @@
     } catch (error) { status.textContent = error.message; }
   });
   $("#refresh").addEventListener("click", async () => { await Promise.all([loadOverview(), loadSos(), loadAlerts()]); });
+  $("#sign-out").addEventListener("click", () => { token = ""; sessionStorage.removeItem(tokenKey); dashboard.classList.add("hidden"); denied.classList.add("hidden"); authPanel.classList.remove("hidden"); showAuthMessage("You have signed out."); });
   verifySession();
 })();
