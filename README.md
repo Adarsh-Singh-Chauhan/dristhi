@@ -16,7 +16,7 @@
 
 **Created by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
 
-**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & first-admin setup](docs/SUPABASE-FREE-SETUP.md)** · **[Alerts & SOS](https://dristhi-five.vercel.app/alerts.html)** · **[Admin Console](https://dristhi-five.vercel.app/admin.html)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
+**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & Superadmin setup](docs/SUPABASE-FREE-SETUP.md)** · **[User mobile app](https://dristhi-five.vercel.app/)** · **[Alerts & SOS](https://dristhi-five.vercel.app/alerts.html)** · **[Superadmin Control Room](https://dristhi-five.vercel.app/admin.html)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
 
 </div>
 
@@ -33,13 +33,13 @@ The frontend and FastAPI service are deployed on Vercel. Anonymous message analy
 The existing browser workspace is also packaged as an **installable Progressive Web App (PWA)** for the user experience. It keeps the same analysis, account, history, alerts and SOS workflows rather than introducing a second disconnected codebase.
 
 - **User app:** responsive mobile layout, home-screen installation, thumb-friendly navigation, app icon and a small offline app shell. API actions still require a network connection.
-- **Superadmin:** a separate restricted control room at [`/admin.html`](https://drishti-five.vercel.app/admin.html) for account-level overview, SOS review and in-app notices.
+- **Superadmin:** a separate restricted control room at [`/admin.html`](https://dristhi-five.vercel.app/admin.html) for account-level overview, SOS review and in-app notices.
 - **One privileged account:** the bootstrap script promotes one existing registered account to `superadmin`. New registrations remain ordinary `user` accounts. Legacy `admin` role records continue to work during the transition.
 - **No public admin signup:** never publish the Superadmin email, password, database URL or token in this repository.
 
 ### Install the user app on Android
 
-1. Open the [DRISHTI workspace](https://drishti-five.vercel.app/) in Chrome.
+1. Open the [DRISHTI workspace](https://dristhi-five.vercel.app/) in Chrome.
 2. Tap **Install app** when the browser offers it, or open the browser menu (⋮) and choose **Install app** / **Add to Home screen**.
 3. Launch DRISHTI from the new home-screen icon.
 
