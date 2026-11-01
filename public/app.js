@@ -6,6 +6,7 @@
   const API_BASE = (configuredApiBase || (isLocalHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
   const tokenKey = "drishti_access_token";
   let token = sessionStorage.getItem(tokenKey) || "";
+  let accountStorageReady = false;
   let authMode = "login";
   let toastTimer;
 
@@ -38,11 +39,27 @@
   }
 
   async function checkApi() {
+    const authButton = $("#auth-open");
+    const historyToggle = $("#save-history");
     try {
-      await api("/health");
-      setApiStatus("online", "API connected");
+      const health = await api("/health");
+      accountStorageReady = health.storage !== "unconfigured";
+      authButton.disabled = !accountStorageReady;
+      authButton.innerHTML = accountStorageReady ? 'Sign in <span>↗</span>' : "Accounts pending";
+      authButton.title = accountStorageReady ? "Sign in to save reports" : "Sign-in and saved history will be enabled after persistent database setup.";
+      historyToggle.disabled = !accountStorageReady;
+      if (!accountStorageReady) historyToggle.checked = false;
+      setApiStatus("online", accountStorageReady ? "API connected" : "Analysis live · Accounts pending");
+      if (!accountStorageReady) loadHistory();
     } catch (_) {
+      accountStorageReady = false;
+      authButton.disabled = true;
+      authButton.textContent = "API unavailable";
+      authButton.title = "The backend API is not responding.";
+      historyToggle.disabled = true;
+      historyToggle.checked = false;
       setApiStatus("offline", "Local demo mode");
+      loadHistory();
     }
   }
 
@@ -202,7 +219,7 @@
             save_to_history: $("#save-history").checked
           })
         });
-        setApiStatus("online", "API connected");
+        setApiStatus("online", accountStorageReady ? "API connected" : "Analysis live · Accounts pending");
         if (result.saved) toast("Analysis saved to your account history.");
         else if (token && !$("#save-history").checked) toast("Analysis complete. History saving is off.");
       } catch (error) {
@@ -320,6 +337,10 @@
   }
 
   async function loadHistory() {
+    if (!accountStorageReady) {
+      $("#history-content").innerHTML = '<div class="history-empty"><span>◷</span><b>Account history is not enabled yet</b><p>Connect persistent PostgreSQL storage to enable sign-in and saved reports. Anonymous message analysis is available now.</p></div>';
+      return;
+    }
     if (!token) {
       $("#history-content").innerHTML = '<div class="history-empty"><span>◷</span><b>Sign in to view your history</b><p>Saved reports are private to your account.</p></div>';
       return;
