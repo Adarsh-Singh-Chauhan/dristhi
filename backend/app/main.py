@@ -24,7 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from .analyzer import analyze_text
 from .operations import build_operations_router, initialize_operations_schema
 
-APP_VERSION = "0.2.0"
+APP_VERSION = "0.3.0"
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 IS_VERCEL = os.getenv("VERCEL", "").lower() == "1"
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "/tmp/drishti.db" if IS_VERCEL else "data/drishti.db"))
@@ -48,7 +48,8 @@ app = FastAPI(
         {"name": "History", "description": "Private saved analysis records."},
         {"name": "Alerts", "description": "In-app review-priority notifications."},
         {"name": "SOS", "description": "User-submitted urgent review requests."},
-        {"name": "Administration", "description": "Role-restricted moderation and alert tools."},
+        {"name": "Administration", "description": "Role-restricted moderation, account overview, audit tools and notices."},
+        {"name": "Threat Intelligence", "description": "Superadmin-managed public IP/domain indicators for authorised defensive investigations."},
     ],
 )
 app.add_middleware(
