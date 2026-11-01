@@ -1,17 +1,24 @@
 {
-  "name": "DRISHTI — Information Integrity",
+  "name": "DRISHTI — Information Integrity Workspace",
   "short_name": "DRISHTI",
-  "description": "Pause. Verify. Understand. A human-led information integrity workspace.",
+  "description": "Pause. Verify. Understand. An explainable information-integrity workspace.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
-  "categories": ["education", "productivity", "security"],
+  "categories": [
+    "productivity",
+    "security",
+    "education"
+  ],
   "icons": [
-    {"src": "/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any"},
-    {"src": "/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable"}
+    {
+      "src": "/icons/drishti-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ]
 }
