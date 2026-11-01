@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09121e"><title>DRISHTI Demo — 40-minute guided sandbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<header class="demo-nav"><a class="brand" href="../"><span class="brand-mark">◉</span><span>DRISHTI<small>INTERACTIVE PRODUCT TOUR</small></span></a><div class="nav-right"><span class="sandbox-pill">SANDBOX · SAMPLE DATA</span><a href="guide.html">User guide ↗</a><a href="../">Main site ↗</a></div></header>
+<main class="shell">
+<section id="login-screen" class="login-layout">
+  <div class="login-copy">
+    <span class="eyebrow"><i></i> TRY BEFORE YOU CONNECT</span>
+    <h1>Explore DRISHTI.<br><em>No setup. No risk.</em></h1>
+    <p>Try the phone-user workspace or a read-only Superadmin tour. Every record in this demo is fictional and stays in this browser tab.</p>
+    <div class="demo-facts"><span>⏱ 40-minute session</span><span>◈ No real user data</span><span>◎ Mobile responsive</span></div>
+    <div class="login-info"><b>What this demo does</b><p>Lets you explore sample analysis, create sandbox case files, view the Superadmin review queue and update sample case outcomes locally.</p><p class="warning">This is not the production account system. Demo credentials cannot access real users, alerts, SOS reports or the production database.</p></div>
+  </div>
+  <div class="login-card">
+    <div class="card-top"><span class="eyebrow">DEMO ACCESS</span><span class="tiny-status"><i></i> READY</span></div>
+    <h2>Sign in to the sandbox.</h2>
+    <p class="sub">Use one of the two sample accounts below. Choose the role you want to explore.</p>
+    <form id="demo-login" class="login-form">
+      <label for="demo-email">Demo ID</label><input id="demo-email" type="email" autocomplete="username" placeholder="demo.user@drishti.in" required>
+      <label for="demo-password">Password</label><input id="demo-password" type="password" autocomplete="current-password" placeholder="Enter demo password" required>
+      <button class="btn primary full" type="submit">Enter demo workspace →</button>
+      <p id="login-message" role="status"></p>
+    </form>
+    <div class="account-list">
+      <button class="account-choice" type="button" data-role="user"><span class="account-icon">▤</span><span><b>Mobile / User demo</b><small>demo.user@drishti.in · DRISHTI-USER-40</small></span><strong>Use ↗</strong></button>
+      <button class="account-choice" type="button" data-role="admin"><span class="account-icon admin-icon">⌘</span><span><b>Superadmin demo</b><small>demo.superadmin@drishti.in · DRISHTI-ADMIN-40</small></span><strong>Use ↗</strong></button>
+    </div>
+    <p class="fine-print">These are public demo credentials for a fictional, browser-only sandbox. Never reuse them for a real DRISHTI account.</p>
+  </div>
+</section>
+
+<section id="demo-app" class="hidden">
+  <header class="app-header"><div><span class="eyebrow">DEMO WORKSPACE / <b id="role-label">USER</b></span><h2 id="welcome">Welcome to DRISHTI</h2></div><div class="session-box"><span class="session-dot"></span><span>DEMO TIME LEFT</span><strong id="timer">40:00</strong><button id="exit-demo" type="button">Exit</button></div></header>
+  <div class="demo-warning">Sandbox mode · Sample records only · Changes are stored in this browser tab and are not sent to the live DRISHTI backend.</div>
+  <nav id="demo-nav" class="demo-tabs" aria-label="Demo navigation"></nav>
+  <section id="demo-content" class="demo-content"></section>
+</section>
+</main>
+<footer class="demo-footer"><span>DRISHTI · Interactive product demo</span><span><a href="https://www.linkedin.com/in/adarsh-singh-5189b9283/" target="_blank" rel="noreferrer">Connect with Adarsh ↗</a> · <a href="mailto:adarshsinghchauhan904@gmail.com?subject=DRISHTI%20Product%20Walkthrough">Request a walkthrough ↗</a></span></footer>
+<script src="demo.js" defer></script>
+</body></html>
