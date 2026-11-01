@@ -22,8 +22,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from .analyzer import analyze_text
+from .operations import build_operations_router, initialize_operations_schema
 
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.2.0"
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 IS_VERCEL = os.getenv("VERCEL", "").lower() == "1"
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "/tmp/drishti.db" if IS_VERCEL else "data/drishti.db"))
@@ -79,6 +80,7 @@ class UserResponse(BaseModel):
     id: str
     email: str
     created_at: str
+    role: str = "user"
 
 
 class AnalysisRequest(BaseModel):
@@ -138,7 +140,7 @@ def database():
         import psycopg
         from psycopg.rows import dict_row
 
-        with psycopg.connect(DATABASE_URL, row_factory=dict_row, connect_timeout=10) as raw_connection:
+        with psycopg.connect(DATABASE_URL, row_factory=dict_row, connect_timeout=10, prepare_threshold=None) as raw_connection:
             yield PostgresConnectionAdapter(raw_connection)
         return
 
@@ -217,6 +219,8 @@ def initialize_database() -> None:
                 ON analyses(user_id, created_at DESC);
                 """
             )
+
+        initialize_operations_schema(connection, is_postgres=bool(DATABASE_URL))
 
 @app.on_event("startup")
 def on_startup() -> None:
@@ -304,7 +308,7 @@ def get_optional_user(
     user_id = decode_access_token(credentials.credentials)
     with database() as connection:
         user = connection.execute(
-            "SELECT id, email, created_at FROM users WHERE id = ?", (user_id,)
+            "SELECT id, email, created_at, role FROM users WHERE id = ?", (user_id,)
         ).fetchone()
     if user is None:
         raise HTTPException(status_code=401, detail="Account no longer exists.")
@@ -319,6 +323,15 @@ def require_user(user: Any | None = Depends(get_optional_user)) -> Any:
             headers={"WWW-Authenticate": "Bearer"},
         )
     return user
+
+
+def require_admin(user: Any = Depends(require_user)) -> Any:
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access is required.")
+    return user
+
+
+app.include_router(build_operations_router(database, require_user, require_admin, utc_now))
 
 
 @app.get("/health", tags=["Health"])
@@ -363,7 +376,7 @@ def login(payload: LoginRequest) -> TokenResponse:
 
 @app.get("/api/v1/auth/me", response_model=UserResponse, tags=["Authentication"])
 def me(user: Any = Depends(require_user)) -> UserResponse:
-    return UserResponse(id=user["id"], email=user["email"], created_at=user["created_at"])
+    return UserResponse(id=user["id"], email=user["email"], created_at=user["created_at"], role=user["role"])
 
 
 @app.post("/api/v1/analyze", response_model=AnalysisResponse, tags=["Analysis"])
@@ -390,6 +403,17 @@ def analyze(payload: AnalysisRequest, user: Any | None = Depends(get_optional_us
                 ),
             )
         saved = True
+    if user is not None and result["priority"] == "high":
+        with database() as connection:
+            connection.execute(
+                """INSERT INTO alerts(id, user_id, title, message, level, category, source_id, created_at, read_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL)""",
+                (
+                    str(uuid.uuid4()), user["id"], "High review priority",
+                    "This analysis matched multiple review signals. Verify the source and context before sharing.",
+                    "high", "analysis", analysis_id, utc_now(),
+                ),
+            )
     return AnalysisResponse(
         analysis_id=analysis_id, score=result["score"], priority=result["priority"],
         label=result["label"], summary=result["summary"], indicators=result["indicators"],
