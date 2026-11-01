@@ -9,6 +9,8 @@
   let accountStorageReady = false;
   let authMode = "login";
   let toastTimer;
+  let latestAnalysisResult = null;
+  let latestAnalysisIsLocalDemo = false;
 
   const $ = (selector) => document.querySelector(selector);
   const $$ = (selector) => Array.from(document.querySelectorAll(selector));
@@ -93,8 +95,9 @@
   function showView(name) {
     $$(".view").forEach((view) => view.classList.toggle("active", view.id === "view-" + name));
     $$(".nav-link").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
-    $("#crumb-title").textContent = name === "analysis" ? "Overview" : name === "history" ? "Analysis history" : "Methodology";
+    $("#crumb-title").textContent = name === "analysis" ? "Overview" : name === "history" ? "Analysis history" : name === "cases" ? "My case files" : "Methodology";
     if (name === "history") loadHistory();
+    if (name === "cases") loadMyCases();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -229,6 +232,8 @@
         setApiStatus("offline", "Local demo mode");
         toast("API unavailable: showing an illustrative local-demo result.");
       }
+      latestAnalysisResult = result;
+      latestAnalysisIsLocalDemo = source.indexOf("local-demo") >= 0 || source.indexOf("Local demo") >= 0;
       renderReport(result, source);
     } catch (error) {
       toast(error.message || "Unable to analyse this message.");
@@ -353,6 +358,74 @@
       $("#history-content p").textContent = error.message;
     }
   }
+
+  $("#case-file-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const status = $("#case-submit-message");
+    if (!latestAnalysisResult) { status.textContent = "Run an analysis before creating a case file."; return; }
+    if (latestAnalysisIsLocalDemo) { status.textContent = "This result came from local demo mode. Connect the live API and sign in before submitting a real case."; return; }
+    if (!accountStorageReady) { status.textContent = "Case files need configured persistent storage. Anonymous analysis remains available."; return; }
+    if (!token) { status.textContent = "Sign in to submit a case file."; openAuth("login"); return; }
+    status.textContent = "Submitting to the review queue…";
+    const payload = {
+      category: $("#case-category").value,
+      title: $("#case-title").value.trim(),
+      claim_text: $("#content").value.trim(),
+      source_platform: $("#platform").value,
+      source_url: $("#source-url").value.trim() || null,
+      analysis_id: latestAnalysisResult.analysis_id || null
+    };
+    try {
+      const created = await api("/api/v1/cases", { method: "POST", body: JSON.stringify(payload) });
+      status.textContent = "Case " + created.id.slice(0, 8) + " created · Received · waiting for human review.";
+      $("#case-file-form").reset();
+      toast("Case file submitted. No public verdict has been issued.");
+      showView("cases");
+      await loadMyCases();
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  });
+
+  function renderCaseFiles(items) {
+    const root = $("#case-content");
+    root.replaceChildren();
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.className = "history-empty";
+      empty.append(document.createElement("span"));
+      empty.firstChild.textContent = "▤";
+      const title = document.createElement("b"); title.textContent = "No case files yet";
+      const help = document.createElement("p"); help.textContent = "Run a review, then create a case file when a claim needs human follow-up.";
+      empty.append(title, help); root.append(empty); return;
+    }
+    items.forEach((item) => {
+      const card = document.createElement("article"); card.className = "history-item";
+      const main = document.createElement("div");
+      const title = document.createElement("b"); title.textContent = item.title;
+      const meta = document.createElement("div"); meta.className = "history-meta";
+      meta.textContent = item.category.replace(/_/g, " ").toUpperCase() + " · " + item.source_platform.toUpperCase() + " · " + new Date(item.created_at).toLocaleString();
+      const claim = document.createElement("p"); claim.textContent = item.claim_text.slice(0, 260);
+      main.append(title, meta, claim);
+      if (item.evidence_summary) { const evidence=document.createElement("p"); evidence.textContent="Reviewer evidence: "+item.evidence_summary; main.append(evidence); }
+      (item.evidence_sources || []).forEach((source) => {
+        try { const url = new URL(source); if (["http:","https:"].includes(url.protocol)) { const a=document.createElement("a"); a.href=url.href; a.target="_blank"; a.rel="noreferrer"; a.textContent="Evidence source ↗"; main.append(a); } } catch {}
+      });
+      const status = document.createElement("span"); status.className = "history-score"; status.textContent = item.status.replace(/_/g, " ");
+      card.append(main, status); root.append(card);
+    });
+  }
+
+  async function loadMyCases() {
+    const root = $("#case-content");
+    if (!accountStorageReady) { root.innerHTML = '<div class="history-empty"><span>▤</span><b>Case storage is not enabled yet</b><p>Connect persistent PostgreSQL storage to save and track evidence cases. Live analysis is still available.</p></div>'; return; }
+    if (!token) { root.innerHTML = '<div class="history-empty"><span>▤</span><b>Sign in to view your case files</b><p>Your submitted cases are private to your account.</p></div>'; return; }
+    root.innerHTML = '<div class="history-empty"><span>◌</span><b>Loading case files…</b><p>Fetching your private review queue.</p></div>';
+    try { renderCaseFiles(await api("/api/v1/cases/mine")); }
+    catch (error) { root.innerHTML = '<div class="history-empty"><span>!</span><b>Could not load case files</b><p></p></div>'; $("#case-content p").textContent = error.message; }
+  }
+
+  $("#refresh-cases").addEventListener("click", loadMyCases);
 
   $("#refresh-history").addEventListener("click", loadHistory);
   $$(".nav-link").forEach((button) => button.addEventListener("click", () => showView(button.dataset.view)));
