@@ -27,6 +27,7 @@
       <nav class="side-nav" aria-label="Main navigation">
         <button class="nav-link active" data-view="analysis"><span class="nav-icon">⌂</span> Overview</button>
         <button class="nav-link" data-view="history"><span class="nav-icon">◷</span> Analysis history</button>
+        <button class="nav-link" data-view="cases"><span class="nav-icon">▤</span> My case files</button>
         <button class="nav-link" data-view="method"><span class="nav-icon">⌘</span> Methodology</button>
         <a class="nav-link" href="alerts.html"><span class="nav-icon">⚑</span> Alerts &amp; SOS</a>
         <a class="nav-link" href="admin.html"><span class="nav-icon">▣</span> Superadmin login</a>
@@ -117,6 +118,16 @@
               <ul id="check-list" class="check-list"></ul>
               <div class="report-disclaimer" id="report-disclaimer"></div>
               <div class="report-source" id="report-source"></div>
+              <section class="case-submit-panel" id="case-submit-panel">
+                <div class="case-submit-head"><div><span class="section-kicker">HUMAN REVIEW WORKFLOW</span><h3>Create an evidence case file</h3><p>Send this claim to the review queue. A signal score alone never decides a verdict.</p></div><span class="case-mark">CASE</span></div>
+                <form id="case-file-form" class="form-grid">
+                  <div><label for="case-title">Case title</label><input id="case-title" minlength="8" maxlength="140" required placeholder="Short, neutral case title"></div>
+                  <div><label for="case-category">Case category</label><select id="case-category"><option value="misinformation">Misleading information</option><option value="phishing">Phishing / suspicious link</option><option value="impersonation">Impersonation</option><option value="deepfake">Manipulated media / deepfake</option><option value="cyber_attack">Cyber incident</option><option value="other">Other / needs triage</option></select></div>
+                  <div><label for="case-context">What should a reviewer know? <span class="optional">OPTIONAL</span></label><textarea id="case-context" maxlength="2000" placeholder="Add context, where it appeared and what needs checking. Do not include passwords or private data."></textarea></div>
+                  <button class="button button-primary" type="submit">Create case file <span>→</span></button>
+                  <p class="form-foot" id="case-submit-message">Requires a signed-in account and configured persistent storage. Submitted cases start as Received and need human review.</p>
+                </form>
+              </section>
             </div>
           </section>
         </div>
@@ -129,6 +140,11 @@
           <div class="panel-head"><div><span class="step-number">03</span><b>Saved reports</b></div><button id="refresh-history" class="text-button">Refresh ↻</button></div>
           <div id="history-content" class="history-content"><div class="history-empty"><span>◷</span><b>No saved reports loaded</b><p>Sign in and refresh to view your analysis history.</p></div></div>
         </div>
+      </section>
+
+      <section class="view" id="view-cases">
+        <div class="page-intro"><span class="section-kicker">EVIDENCE & FOLLOW-UP</span><h1>My case <em>files.</em></h1><p>Track submitted claims and see the evidence summary added by a reviewer. A received case is not a confirmed finding.</p></div>
+        <div class="panel history-panel"><div class="panel-head"><div><span class="step-number">04</span><b>Submitted cases</b></div><button id="refresh-cases" class="text-button" type="button">Refresh ↻</button></div><div id="case-content" class="history-content"><div class="history-empty"><span>▤</span><b>Sign in to view your case files</b><p>Case files are private to your account.</p></div></div></div>
       </section>
 
       <section class="view" id="view-method">
@@ -150,6 +166,7 @@
   <nav class="mobile-dock" aria-label="User app navigation">
     <button class="dock-link nav-link active" type="button" data-view="analysis"><span>◎</span><small>Analyse</small></button>
     <button class="dock-link nav-link" type="button" data-view="history"><span>◷</span><small>History</small></button>
+    <button class="dock-link nav-link" type="button" data-view="cases"><span>▤</span><small>Cases</small></button>
     <button class="dock-link nav-link" type="button" data-view="method"><span>⌘</span><small>Guide</small></button>
     <a class="dock-link" href="/guide.html"><span>⌑</span><small>Help</small></a>
     <a class="dock-link" href="/alerts.html"><span>⚑</span><small>Safety</small></a>
