@@ -24,7 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from .analyzer import analyze_text
 from .operations import build_operations_router, initialize_operations_schema
 
-APP_VERSION = "0.3.0"
+APP_VERSION = "0.4.0"
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 IS_VERCEL = os.getenv("VERCEL", "").lower() == "1"
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "/tmp/drishti.db" if IS_VERCEL else "data/drishti.db"))
