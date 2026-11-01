@@ -93,3 +93,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .guide-callout { margin-top:16px; padding:22px; border-color:rgba(89,215,196,.26); background:linear-gradient(140deg,rgba(26,70,76,.26),rgba(15,27,42,.98)); }
 .guide-callout p { color:#a7bac4; font-size:11px; line-height:1.8; }
 @media(max-width:760px) { .guide-grid { grid-template-columns:1fr; } .guide-card { padding:17px; } }
+
+/* Illustrated guide screens */
+.guide-visuals{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 26px}
+.guide-visual-heading{grid-column:1/-1;padding:7px 2px}
+.guide-visual-heading h2{font:600 25px "Space Grotesk";margin:7px 0;color:var(--text);letter-spacing:-.04em}
+.guide-visual-heading p{margin:0;color:var(--muted);font-size:11px}
+.guide-screen{margin:0;overflow:hidden;padding:10px}
+.guide-screen img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#08111c}
+.guide-screen figcaption{display:grid;gap:4px;padding:10px 3px 2px}
+.guide-screen figcaption b{font:600 12px "Space Grotesk"}
+.guide-screen figcaption span{font-size:10px;color:var(--muted)}
+.guide-visuals .guide-screen:last-child{grid-column:1/-1}
+.demo-credentials{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:15px 0}
+.demo-credentials>div{display:grid;gap:5px;padding:13px;border:1px solid var(--line);border-radius:8px;background:rgba(8,18,28,.45)}
+.demo-credentials b{font:600 10px "Space Grotesk"}
+.demo-credentials code{font:10px ui-monospace,SFMono-Regular,Consolas,monospace;color:#9ee0d1;overflow-wrap:anywhere}
+@media(max-width:680px){.guide-visuals{grid-template-columns:1fr}.guide-visuals .guide-screen:last-child{grid-column:auto}.demo-credentials{grid-template-columns:1fr}}
