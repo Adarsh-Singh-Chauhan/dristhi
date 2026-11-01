@@ -72,3 +72,17 @@
   .dock-link:active{transform:scale(.96)}
 }
 @keyframes dock-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+
+/* Case files: evidence-led review surface */
+.case-submit-panel{margin-top:22px;padding:18px;border:1px solid rgba(89,215,196,.22);border-radius:13px;background:linear-gradient(145deg,rgba(29,66,69,.24),rgba(16,29,43,.54))}
+.case-submit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}
+.case-submit-head h3{margin:5px 0 3px;font:600 18px "Space Grotesk",sans-serif}
+.case-submit-head p{margin:0;color:var(--muted);font-size:11px}
+.case-mark{display:grid;place-items:center;min-width:43px;height:43px;border:1px solid rgba(89,215,196,.28);border-radius:12px;color:var(--teal);font:700 10px "Space Grotesk",sans-serif;letter-spacing:.12em}
+.case-submit-panel input,.case-submit-panel select,.case-submit-panel textarea{width:100%;padding:11px 12px;background:#0b1624;color:var(--text);border:1px solid var(--line);border-radius:8px;outline:none}
+.case-submit-panel textarea{min-height:80px;resize:vertical}
+.case-submit-panel input:focus,.case-submit-panel select:focus,.case-submit-panel textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(89,215,196,.08)}
+.case-submit-panel .form-foot{margin:0;color:var(--muted);font-size:10px}
+.case-submit-panel .button{justify-self:start}
+@media(max-width:700px){.case-submit-panel{padding:14px}.case-submit-head{gap:8px}.case-submit-head h3{font-size:16px}}
