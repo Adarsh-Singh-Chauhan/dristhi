@@ -143,7 +143,7 @@ The global map is an incident-context view—not a people-tracking system.
 
 ## 6. The 40-minute public demo
 
-<badge color="success">Available as a browser-only product tour</badge>
+**Available as a browser-only product tour.**
 
 [**Open the guided DRISHTI demo**](https://dristhi-five.vercel.app/frontend/demo.html)
 
