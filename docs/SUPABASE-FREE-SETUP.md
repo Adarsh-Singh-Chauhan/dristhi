@@ -1,6 +1,6 @@
 # DRISHTI — Supabase Free PostgreSQL & first-admin setup
 
-This guide keeps the DRISHTI deployment on free tiers. **Do not upgrade a plan, add paid compute, enable add-ons, or add a paid notification provider.** Supabase currently advertises a $0/month Free plan, but its included quotas and inactivity rules apply. Recheck the pricing page before creating the project.
+This guide keeps DRISHTI on free tiers. **Do not upgrade, add paid compute, enable add-ons, or add a paid notification provider.** Supabase Free is $0/month. Current included allowances include 500 MB database per project, 5 GB egress and 1 GB file storage. Supabase says repeated Free quota breaches can cause service restrictions (such as pausing or read-only mode), so keep usage within the published limits rather than upgrading. See https://supabase.com/docs/guides/platform/billing-on-supabase and https://supabase.com/docs/guides/platform/billing-faq.
 
 ## 1. Create a dedicated Free organization and project
 
@@ -10,9 +10,9 @@ This guide keeps the DRISHTI deployment on free tiers. **Do not upgrade a plan, 
 4. Create a project named **drishti-postgres**.
 5. Select **Mumbai (ap-south-1)** to keep the database close to the Vercel Mumbai function region.
 6. Generate a strong database password and save it in your password manager. Do not put it in GitHub, README, an issue, or a chat message.
-7. Keep billing on Free. Do not turn on compute upgrades, PITR, IPv4, custom domains, branching, log drains, or other paid add-ons.
+7. Keep billing on Free. Do not add a paid payment method or turn on compute upgrades, PITR, IPv4, custom domains, branching, log drains, or other paid add-ons. If a screen asks you to upgrade or enter billing details, stop and do not continue.
 
-Supabase currently allows up to **two active Free projects** across organizations where you are Owner or Admin. Your connected account showed one ACTIVE_HEALTHY project and two INACTIVE projects when this guide was prepared; check the dashboard before creating another. Free projects may pause after roughly seven days of low database activity. A paused Free project can be restored from the dashboard.
+Supabase currently allows up to **two active Free projects** across all organizations where you are Owner or Admin; paused projects do not count. Your connected account showed one ACTIVE_HEALTHY project and two INACTIVE projects when this guide was prepared, so check the Free-project counter in the dashboard before creating another. Free projects can pause after about seven days of low database activity. Paused projects do not incur compute charges and can be restored from the dashboard. See https://supabase.com/docs/guides/platform/free-project-pausing.
 
 ## 2. Create the PostgreSQL schema
 
@@ -61,6 +61,10 @@ The initial zero-cost design uses **in-app alerts** and an **admin SOS review qu
 
 An automatic analysis alert means “high review priority / verify this”, not “confirmed misinformation”. SOS is an urgent request for DRISHTI reviewers; it is not an automatic police, ambulance, or emergency-services dispatch.
 
-## 6. What is not enabled yet
+## 6. Vercel free-tier guardrail
+
+The existing Vercel deployment is on **Hobby ($0)**. Keep it on Hobby; do not start a Pro trial or upgrade. Hobby is for personal, non-commercial projects. Vercel documents that over-limit Hobby features generally become unavailable until the usage window resets instead of starting a paid usage cycle. See https://vercel.com/docs/plans/hobby. Keep the default `*.vercel.app` URL; a separately purchased custom domain is not part of this zero-cost setup.
+
+## 7. What is not enabled yet
 
 Creating the Supabase organization/project and adding `DATABASE_URL` are owner-controlled setup steps. Until those are completed and verified, production account registration, saved history, persistent alerts, SOS storage, and the admin console must remain disabled. Do not share the database password or any service-role key; only share the project reference/URL and a confirmation that the environment variable is configured.
