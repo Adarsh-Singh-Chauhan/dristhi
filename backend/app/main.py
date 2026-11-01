@@ -14,7 +14,7 @@ import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 from app.analyzer import analyze_text
 
 APP_VERSION = "0.1.0"
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
 DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "data/drishti.db"))
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY") or secrets.token_urlsafe(48)
 ACCESS_TOKEN_TTL_MINUTES = max(5, int(os.getenv("ACCESS_TOKEN_TTL_MINUTES", "60")))
@@ -115,11 +116,34 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+class PostgresConnectionAdapter:
+    """Keep the small SQL surface compatible with the SQLite prototype."""
+
+    def __init__(self, connection):
+        self.connection = connection
+
+    def execute(self, statement: str, params=()):
+        return self.connection.execute(statement.replace("?", "%s"), params)
+
+    def executescript(self, script: str) -> None:
+        for statement in script.split(";"):
+            if statement.strip():
+                self.execute(statement)
+
+
 @contextmanager
 def database():
+    if DATABASE_URL:
+        import psycopg
+        from psycopg.rows import dict_row
+
+        with psycopg.connect(DATABASE_URL, row_factory=dict_row, connect_timeout=10) as raw_connection:
+            yield PostgresConnectionAdapter(raw_connection)
+        return
+
     DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(DATABASE_PATH, timeout=10)
-    connection.row_factory = sqlite3.Row
+    connection.row_factory = Any
     connection.execute("PRAGMA foreign_keys = ON")
     try:
         yield connection
@@ -133,31 +157,60 @@ def database():
 
 def initialize_database() -> None:
     with database() as connection:
-        connection.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS users (
-                id TEXT PRIMARY KEY,
-                email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-                password_hash TEXT NOT NULL,
-                created_at TEXT NOT NULL
-            );
-            CREATE TABLE IF NOT EXISTS analyses (
-                id TEXT PRIMARY KEY,
-                user_id TEXT NOT NULL,
-                source_platform TEXT NOT NULL,
-                source_url TEXT,
-                content_excerpt TEXT NOT NULL,
-                score INTEGER NOT NULL,
-                priority TEXT NOT NULL,
-                indicators_json TEXT NOT NULL,
-                created_at TEXT NOT NULL,
-                FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-            );
-            CREATE INDEX IF NOT EXISTS idx_analyses_user_created
-            ON analyses(user_id, created_at DESC);
-            """
-        )
-
+        if DATABASE_URL:
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS users (
+                    id TEXT PRIMARY KEY,
+                    email TEXT NOT NULL UNIQUE,
+                    password_hash TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+                """
+            )
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS analyses (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    source_platform TEXT NOT NULL,
+                    source_url TEXT,
+                    content_excerpt TEXT NOT NULL,
+                    score INTEGER NOT NULL,
+                    priority TEXT NOT NULL,
+                    indicators_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                )
+                """
+            )
+            connection.execute(
+                "CREATE INDEX IF NOT EXISTS idx_analyses_user_created ON analyses(user_id, created_at DESC)"
+            )
+        else:
+            connection.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS users (
+                    id TEXT PRIMARY KEY,
+                    email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                    password_hash TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS analyses (
+                    id TEXT PRIMARY KEY,
+                    user_id TEXT NOT NULL,
+                    source_platform TEXT NOT NULL,
+                    source_url TEXT,
+                    content_excerpt TEXT NOT NULL,
+                    score INTEGER NOT NULL,
+                    priority TEXT NOT NULL,
+                    indicators_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                );
+                CREATE INDEX IF NOT EXISTS idx_analyses_user_created
+                ON analyses(user_id, created_at DESC);
+                """
+            )
 
 @app.on_event("startup")
 def on_startup() -> None:
@@ -230,7 +283,7 @@ def decode_access_token(token: str) -> str:
 
 def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
-) -> sqlite3.Row | None:
+) -> Any | None:
     if credentials is None:
         return None
     user_id = decode_access_token(credentials.credentials)
@@ -243,7 +296,7 @@ def get_optional_user(
     return user
 
 
-def require_user(user: sqlite3.Row | None = Depends(get_optional_user)) -> sqlite3.Row:
+def require_user(user: Any | None = Depends(get_optional_user)) -> Any:
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -271,8 +324,10 @@ def register(payload: RegisterRequest) -> TokenResponse:
                 "INSERT INTO users(id, email, password_hash, created_at) VALUES (?, ?, ?, ?)",
                 (user_id, email, hash_password(payload.password), created_at),
             )
-    except sqlite3.IntegrityError as exc:
-        raise HTTPException(status_code=409, detail="An account with this email already exists.") from exc
+    except Exception as exc:
+        if isinstance(exc, sqlite3.IntegrityError) or exc.__class__.__name__ in {"IntegrityError", "UniqueViolation"}:
+            raise HTTPException(status_code=409, detail="An account with this email already exists.") from exc
+        raise
     return TokenResponse(access_token=create_access_token(user_id), expires_in=ACCESS_TOKEN_TTL_MINUTES * 60)
 
 
@@ -289,12 +344,12 @@ def login(payload: LoginRequest) -> TokenResponse:
 
 
 @app.get("/api/v1/auth/me", response_model=UserResponse, tags=["Authentication"])
-def me(user: sqlite3.Row = Depends(require_user)) -> UserResponse:
+def me(user: Any = Depends(require_user)) -> UserResponse:
     return UserResponse(id=user["id"], email=user["email"], created_at=user["created_at"])
 
 
 @app.post("/api/v1/analyze", response_model=AnalysisResponse, tags=["Analysis"])
-def analyze(payload: AnalysisRequest, user: sqlite3.Row | None = Depends(get_optional_user)) -> AnalysisResponse:
+def analyze(payload: AnalysisRequest, user: Any | None = Depends(get_optional_user)) -> AnalysisResponse:
     content = payload.content.strip()
     if len(content) < 20:
         raise HTTPException(status_code=422, detail="Please provide at least 20 characters.")
@@ -326,7 +381,7 @@ def analyze(payload: AnalysisRequest, user: sqlite3.Row | None = Depends(get_opt
 
 
 @app.get("/api/v1/history", response_model=list[HistoryItem], tags=["History"])
-def list_history(user: sqlite3.Row = Depends(require_user)) -> list[HistoryItem]:
+def list_history(user: Any = Depends(require_user)) -> list[HistoryItem]:
     with database() as connection:
         rows = connection.execute(
             """SELECT id, source_platform, source_url, content_excerpt, score,
@@ -345,7 +400,7 @@ def list_history(user: sqlite3.Row = Depends(require_user)) -> list[HistoryItem]
 
 
 @app.delete("/api/v1/history/{analysis_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None, tags=["History"])
-def delete_history_item(analysis_id: str, user: sqlite3.Row = Depends(require_user)) -> None:
+def delete_history_item(analysis_id: str, user: Any = Depends(require_user)) -> None:
     with database() as connection:
         cursor = connection.execute(
             "DELETE FROM analyses WHERE id = ? AND user_id = ?", (analysis_id, user["id"])

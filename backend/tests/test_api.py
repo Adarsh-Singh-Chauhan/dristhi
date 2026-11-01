@@ -4,6 +4,7 @@ from app import main as api
 
 
 def test_register_analyze_history_and_delete(tmp_path, monkeypatch):
+    monkeypatch.setattr(api, "DATABASE_URL", "")
     monkeypatch.setattr(api, "DATABASE_PATH", tmp_path / "drishti-test.db")
     monkeypatch.setattr(api, "JWT_SECRET_KEY", "test-only-secret-for-pytest")
 
