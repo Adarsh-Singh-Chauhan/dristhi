@@ -16,7 +16,7 @@
 
 **Created by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
 
-**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & Superadmin setup](docs/SUPABASE-FREE-SETUP.md)** · **[User mobile app](https://dristhi-five.vercel.app/)** · **[Alerts & SOS](https://dristhi-five.vercel.app/alerts.html)** · **[Superadmin Control Room](https://dristhi-five.vercel.app/admin.html)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
+**[Vercel deployment guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & Superadmin setup](docs/SUPABASE-FREE-SETUP.md)** · **[Hinglish user guide](docs/USER-GUIDE-HINGLISH.md)** · **[Web user guide](https://dristhi-five.vercel.app/guide.html)** · **[Alerts & SOS](https://dristhi-five.vercel.app/alerts.html)** · **[Superadmin Control Room](https://dristhi-five.vercel.app/admin.html)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
 
 </div>
 
@@ -50,6 +50,28 @@ The PWA shell can load previously cached interface files offline. Sign-in, messa
 Follow [the Supabase Free setup guide](docs/SUPABASE-FREE-SETUP.md). Register the intended owner account first, then run `scripts/promote_first_admin.py` locally with a private `DATABASE_URL`. The script serialises bootstrap attempts, refuses a second privileged account and never generates or stores a password.
 
 **Production limitation:** if `/health` still reports `storage: unconfigured`, server-side account creation, analysis history, persistent SOS and Superadmin APIs remain disabled until PostgreSQL is connected. The PWA packaging does not bypass this requirement.
+
+## Threat intelligence, location and privacy model
+
+The Superadmin workspace now includes a global signal map, a defensive network-indicator register, user/account overview and admin audit trail. These are additive to the existing analysis, history, alerts, trusted contacts, SOS review and notice workflows.
+
+- **User GPS:** an SOS submitter may explicitly tick a checkbox and approve the browser permission. One location snapshot is attached to that SOS only and shown to the Superadmin review team. No background or live device tracking is performed.
+- **IP/domain indicators:** the Superadmin may record public IP addresses or domains found in sources/logs they are authorised to investigate. Private, local and reserved IP ranges are rejected.
+- **IP location:** country/city/coordinates are optional analyst-entered approximate GeoIP context. It is not a person's GPS position, identity or home address; VPNs, proxies and carrier NAT can make it inaccurate.
+- **Global map:** plots user-consented SOS snapshots and manually geolocated public indicators. It is an operational snapshot, not a real-time people-tracking map.
+- **Visitor privacy:** DRISHTI does not automatically collect website visitors' IP addresses or resolve visitors to a physical location.
+
+### Defensive network-indicator API
+
+| Method | Endpoint | Access | Purpose |
+| --- | --- | --- | --- |
+| GET | /api/v1/admin/network-indicators | Superadmin | List public IP/domain observables |
+| POST | /api/v1/admin/network-indicators | Superadmin | Add a public indicator with evidence reference and optional approximate location |
+| PATCH | /api/v1/admin/network-indicators/{id} | Superadmin | Mark under review, confirmed or false positive |
+| GET | /api/v1/admin/users | Superadmin | View registered account metadata (never passwords) |
+| GET | /api/v1/admin/audit | Superadmin | Review recent privileged actions |
+
+The SOS endpoint accepts optional share_location, latitude, longitude and location_accuracy_m fields. Coordinates are ignored unless share_location is explicitly true. The database migration is additive and retains the earlier SOS fields and records.
 
 ## 01 · Project overview
 
@@ -110,6 +132,13 @@ The score is **not a probability that a claim is false**. It is a transparent tr
 - Transparent, explainable heuristic signal checks.
 - Review-priority score and matched-signal explanations.
 - Recommended verification checklist.
+- Separate User sign-in/registration and Superadmin sign-in page.
+- Installable PWA shell, app icon, offline static shell and responsive mobile navigation.
+- Hinglish quick user guide for user workflows, Superadmin setup, location sharing and mobile installation.
+- User-consented, one-time GPS snapshot for a submitted SOS request.
+- Global signal map for opt-in incident coordinates and analyst-supplied approximate public IOC locations.
+- Defensive IP/domain IOC registry with public-IP validation, severity, review status and audit events.
+- Superadmin account overview and privileged-action audit view.
 - User registration and login endpoints.
 - Password hashing using Python scrypt.
 - Short-lived JWT bearer access tokens.
