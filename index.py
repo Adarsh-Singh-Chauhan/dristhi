@@ -1,14 +1,10 @@
 """Vercel entrypoint for the DRISHTI FastAPI application."""
 from pathlib import Path
-import sys
 
 ROOT = Path(__file__).resolve().parent
-BACKEND = ROOT / "backend"
-if str(BACKEND) not in sys.path:
-    sys.path.insert(0, str(BACKEND))
 
-from fastapi.responses import FileResponse  # noqa: E402
-from app.main import app  # noqa: E402
+from fastapi.responses import FileResponse
+from backend.app.main import app
 
 
 @app.get("/", include_in_schema=False)
