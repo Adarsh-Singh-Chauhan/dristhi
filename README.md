@@ -20,6 +20,8 @@
 
 ---
 
+**[Open the DRISHTI browser workspace](https://adarsh-singh-chauhan.github.io/dristhi/)** · Static preview runs in clearly labelled local-demo mode until a backend deployment is configured.
+
 ## 01 · Project overview
 
 **DRISHTI** is a cybersecurity-oriented information-integrity analysis prototype. It explores how suspicious messaging patterns, urgency-based forwards, unverified authority claims, panic language and shortened links can be surfaced for further human verification.
