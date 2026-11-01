@@ -38,3 +38,37 @@
   .dock-link:active{transform:scale(.96)}
 }
 @keyframes dock-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+
+/* DRISHTI mobile app layer — appended to retain the existing workspace styling. */
+.mobile-dock{display:none}
+.dock-link{border:0;background:transparent;color:#8ea2b4;text-align:center;text-decoration:none;min-width:0}
+.dock-link span{font-size:19px;line-height:1.1;color:var(--teal)}
+.dock-link small{font-size:9px;font-weight:700;letter-spacing:.03em}
+.dock-link.active{color:#e8fffa;background:rgba(89,215,196,.10);border-radius:11px}
+.install-app-button{white-space:nowrap}
+@media(max-width:760px){
+  .sidebar .side-nav{display:none}
+  .sidebar{padding:13px 18px 12px}
+  .brand{padding:0}
+  .main-content{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .mobile-dock{
+    position:fixed;z-index:30;left:12px;right:12px;bottom:calc(8px + env(safe-area-inset-bottom));
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+    padding:8px 7px;background:rgba(8,17,29,.94);backdrop-filter:blur(18px);
+    border:1px solid rgba(89,215,196,.20);border-radius:17px;
+    box-shadow:0 14px 42px rgba(0,0,0,.42)
+  }
+  .mobile-dock .dock-link{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 3px;min-height:48px}
+  .topbar{gap:8px}
+  .top-actions{gap:8px}
+  .install-app-button{font-size:9px;padding:8px 9px;gap:4px}
+  .user-chip{max-width:132px}
+  .toast{left:14px;right:14px;bottom:calc(88px + env(safe-area-inset-bottom));text-align:center}
+}
+@media(prefers-reduced-motion:no-preference){
+  .mobile-dock{animation:dock-in .45s cubic-bezier(.2,.8,.2,1) both}
+  .dock-link{transition:background .2s ease,color .2s ease,transform .2s ease}
+  .dock-link:active{transform:scale(.96)}
+}
+@keyframes dock-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
