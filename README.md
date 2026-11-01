@@ -22,7 +22,11 @@
 
 ---
 
-**[Open the DRISHTI browser workspace](https://adarsh-singh-chauhan.github.io/dristhi/)** · Static preview runs in clearly labelled local-demo mode until a backend deployment is configured.
+**[Open the live DRISHTI workspace](https://dristhi-five.vercel.app/)** · **[API documentation](https://dristhi-five.vercel.app/docs)** · **[Health check](https://dristhi-five.vercel.app/health)**
+
+## Live deployment status (1 November 2026)
+
+The frontend and FastAPI service are deployed on Vercel. Anonymous message analysis is available. The production health endpoint currently reports `storage: unconfigured`: user registration, sign-in and saved history remain disabled until a persistent PostgreSQL `DATABASE_URL` is added to the Vercel project. Local development continues to use SQLite by default. The current detector is a deterministic, explainable rule-based baseline—not a trained AI model or an external fact-checking service.
 
 ## 01 · Project overview
 
