@@ -429,18 +429,22 @@ See SECURITY.md for reporting and deployment guidance.
 - [ ] Reviewer notes, correction and appeal workflow.
 
 ### Phase 3 — Multilingual and media research
-- [ ] Hindi and other language evaluation datasets with consent and documented provenance.
-- [ ] Translation-aware and code-mixed text analysis.
+- [ ] Evaluate multilingual transformer baselines such as mBERT and XLM-RoBERTa on documented, permissioned Hindi/English/Hinglish datasets.
+- [ ] Translation-aware and code-mixed text analysis with per-language false-positive measurement.
 - [ ] OCR for screenshots and public notices.
 - [ ] Image provenance and reverse-search integrations.
 - [ ] Audio / video forensics research with confidence and limitations clearly disclosed.
+- [ ] Optional contextual Q&A assistant (for example, a Gemini integration) with explicit API-key configuration, evidence citations and clear uncertainty.
+
 
 ### Phase 4 — Campaign-pattern research
-- [ ] Privacy-preserving analysis of public, lawfully accessible content.
+- [ ] Public-source collection through official, permitted platform APIs or approved datasets; no private-message scraping.
 - [ ] Repetition and timing pattern analysis.
+- [ ] Graph-based coordination research (for example, NetworkX) on public, aggregated interaction metadata—not person identity or private account surveillance.
 - [ ] Coordinated amplification research with human oversight.
 - [ ] False-positive measurement and independent evaluation.
 - [ ] Transparent source and methodology governance.
+
 
 ### Phase 5 — Responsible scale
 - [ ] PostgreSQL and managed infrastructure.
