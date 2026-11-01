@@ -21,11 +21,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
-from app.analyzer import analyze_text
+from .analyzer import analyze_text
 
 APP_VERSION = "0.1.0"
 DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
-DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "data/drishti.db"))
+IS_VERCEL = os.getenv("VERCEL", "").lower() == "1"
+DATABASE_PATH = Path(os.getenv("DATABASE_PATH", "/tmp/drishti.db" if IS_VERCEL else "data/drishti.db"))
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY") or secrets.token_urlsafe(48)
 ACCESS_TOKEN_TTL_MINUTES = max(5, int(os.getenv("ACCESS_TOKEN_TTL_MINUTES", "60")))
 CORS_ORIGINS = [
@@ -156,6 +157,11 @@ def database():
 
 
 def initialize_database() -> None:
+    # Vercel functions have ephemeral filesystems. Do not initialize local SQLite
+    # there: anonymous analysis works without storage, while account/history
+    # endpoints remain disabled until DATABASE_URL is configured.
+    if IS_VERCEL and not DATABASE_URL:
+        return
     with database() as connection:
         if DATABASE_URL:
             connection.execute(
@@ -281,11 +287,20 @@ def decode_access_token(token: str) -> str:
         ) from exc
 
 
+def require_persistent_storage() -> None:
+    if IS_VERCEL and not DATABASE_URL:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Account storage is not configured yet. Anonymous analysis is available.",
+        )
+
+
 def get_optional_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
 ) -> Any | None:
     if credentials is None:
         return None
+    require_persistent_storage()
     user_id = decode_access_token(credentials.credentials)
     with database() as connection:
         user = connection.execute(
@@ -308,11 +323,13 @@ def require_user(user: Any | None = Depends(get_optional_user)) -> Any:
 
 @app.get("/health", tags=["Health"])
 def health_check() -> dict:
-    return {"status": "ok", "service": "drishti-api", "version": APP_VERSION}
+    storage = "postgres" if DATABASE_URL else ("unconfigured" if IS_VERCEL else "local-sqlite")
+    return {"status": "ok", "service": "drishti-api", "version": APP_VERSION, "storage": storage}
 
 
 @app.post("/api/v1/auth/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED, tags=["Authentication"])
 def register(payload: RegisterRequest) -> TokenResponse:
+    require_persistent_storage()
     email = payload.email.lower()
     if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email):
         raise HTTPException(status_code=422, detail="Enter a valid email address.")
@@ -333,9 +350,10 @@ def register(payload: RegisterRequest) -> TokenResponse:
 
 @app.post("/api/v1/auth/login", response_model=TokenResponse, tags=["Authentication"])
 def login(payload: LoginRequest) -> TokenResponse:
+    require_persistent_storage()
     with database() as connection:
         user = connection.execute(
-            "SELECT id, password_hash FROM users WHERE email = ? COLLATE NOCASE",
+            "SELECT id, password_hash FROM users WHERE email = ?",
             (payload.email.lower(),),
         ).fetchone()
     if user is None or not verify_password(payload.password, user["password_hash"]):
