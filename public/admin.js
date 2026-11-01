@@ -1,9 +1,6 @@
 (() => {
   const $ = (selector) => document.querySelector(selector);
   const configuredApiBase = typeof window.DRISHTI_API_BASE === "string" ? window.DRISHTI_API_BASE.trim() : "";
-  const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-  const API_BASE = (configuredApiBase || (isLocalHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
-  const configuredApiBase = typeof window.DRISHTI_API_BASE === "string" ? window.DRISHTI_API_BASE.trim() : "";
   const localHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
   const apiBase = (configuredApiBase || (localHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
   const tokenKey = "drishti_access_token";
@@ -11,10 +8,12 @@
   const authPanel = $("#auth-panel");
   const dashboard = $("#dashboard");
   const denied = $("#access-denied");
+  let lastSosReports = [];
+  let lastNetworkIndicators = [];
   const api = async (path, options = {}) => {
     const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
     if (token) headers.Authorization = "Bearer " + token;
-    const response = await fetch(API_BASE + path, { ...options, headers });
+    const response = await fetch(apiBase + path, { ...options, headers });
     const raw = await response.text();
     let data = {};
     try { data = raw ? JSON.parse(raw) : {}; } catch {}
@@ -32,7 +31,7 @@
     authPanel.classList.add("hidden");
     denied.classList.add("hidden");
     dashboard.classList.remove("hidden");
-    await Promise.all([loadOverview(), loadSos(), loadAlerts()]);
+    await Promise.all([loadOverview(), loadSos(), loadAlerts(), loadNetworkIndicators(), loadUsers(), loadAudit()]);
   }
   async function verifySession() {
     if (!token) return;
@@ -76,6 +75,7 @@
       $("#stat-open").textContent = data.open_sos;
       $("#stat-sos").textContent = data.total_sos;
       $("#stat-alerts").textContent = data.alerts;
+      $("#stat-network").textContent = data.network_indicators ?? 0;
     } catch (error) { $("#stat-open").textContent = "—"; $("#sos-list").textContent = error.message; }
   }
   async function loadSos() {
@@ -83,6 +83,8 @@
     root.replaceChildren(element("div", "empty", "Loading SOS requests…"));
     try {
       const items = await api("/api/v1/admin/sos");
+      lastSosReports = items;
+      renderGlobalMap();
       root.replaceChildren();
       if (!items.length) { root.append(element("div", "empty", "No SOS reports have been submitted.")); return; }
       items.forEach((item) => {
@@ -93,6 +95,14 @@
         card.append(header);
         card.append(element("div", "meta", "From " + item.reporter_email + " · " + item.created_at + " · " + item.status));
         card.append(element("p", "", item.details));
+        if (item.location_shared && Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude))) {
+          const lat = Number(item.latitude);
+          const lon = Number(item.longitude);
+          card.append(element("div", "meta", "GPS snapshot shared by the user for this SOS only · " + lat.toFixed(5) + ", " + lon.toFixed(5) + (item.location_accuracy_m ? " · ±" + Math.round(item.location_accuracy_m) + " m" : "")));
+          const mapLink = element("a", "map-open-link", "Open shared incident location ↗");
+          mapLink.href = "https://www.openstreetmap.org/?mlat=" + encodeURIComponent(lat) + "&mlon=" + encodeURIComponent(lon) + "#map=15/" + encodeURIComponent(lat) + "/" + encodeURIComponent(lon);
+          mapLink.target = "_blank"; mapLink.rel = "noreferrer"; card.append(mapLink);
+        }
         if (item.source_url) {
           try { const url = new URL(item.source_url); if (["https:", "http:"].includes(url.protocol)) { const a = element("a", "", "Open source ↗"); a.href = url.href; a.target = "_blank"; a.rel = "noreferrer"; card.append(a); } } catch {}
         }
@@ -130,6 +140,141 @@
       });
     } catch (error) { root.replaceChildren(element("div", "empty", error.message)); }
   }
+
+  function renderGlobalMap() {
+    const root = $("#global-map-markers");
+    if (!root) return;
+    root.replaceChildren();
+    const NS = "http://www.w3.org/2000/svg";
+    const points = [];
+    lastSosReports.forEach((item) => {
+      if (item.location_shared && Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude))) {
+        points.push({ kind: "gps", lat: Number(item.latitude), lon: Number(item.longitude), label: "User-consented SOS location · " + item.title });
+      }
+    });
+    lastNetworkIndicators.forEach((item) => {
+      if (item.latitude !== null && item.longitude !== null && Number.isFinite(Number(item.latitude)) && Number.isFinite(Number(item.longitude))) {
+        points.push({ kind: "ioc", lat: Number(item.latitude), lon: Number(item.longitude), label: item.indicator_type.toUpperCase() + " indicator · " + item.indicator + (item.location_label ? " · " + item.location_label : "") });
+      }
+    });
+    points.forEach((point) => {
+      const x = ((point.lon + 180) / 360) * 1000;
+      const y = ((90 - point.lat) / 180) * 470;
+      const marker = document.createElementNS(NS, "circle");
+      marker.setAttribute("cx", String(Math.max(7, Math.min(993, x))));
+      marker.setAttribute("cy", String(Math.max(7, Math.min(463, y))));
+      marker.setAttribute("r", point.kind === "gps" ? "7" : "6");
+      marker.setAttribute("class", point.kind === "gps" ? "map-marker-gps" : "map-marker-ioc");
+      const title = document.createElementNS(NS, "title");
+      title.textContent = point.label + " · " + point.lat.toFixed(4) + ", " + point.lon.toFixed(4);
+      marker.append(title);
+      root.append(marker);
+    });
+    const gpsCount = points.filter((point) => point.kind === "gps").length;
+    const iocCount = points.filter((point) => point.kind === "ioc").length;
+    $("#map-summary").textContent = points.length
+      ? gpsCount + " user-consented incident location(s) · " + iocCount + " manually geolocated public indicator(s). Coordinates are snapshots or analyst estimates, not live tracking."
+      : "No mapped records yet. SOS locations appear only after a user opts in; IOC locations require analyst-supplied approximate coordinates.";
+  }
+
+  async function loadNetworkIndicators() {
+    const root = $("#network-list");
+    try {
+      const items = await api("/api/v1/admin/network-indicators");
+      lastNetworkIndicators = items;
+      renderGlobalMap();
+      root.replaceChildren();
+      if (!items.length) { root.append(element("div", "empty", "No network indicators recorded yet.")); return; }
+      items.forEach((item) => {
+        const card = element("article", "card");
+        const header = element("div", "panel-head");
+        header.append(element("h3", "", item.indicator));
+        header.append(element("span", "pill " + item.severity, item.severity));
+        card.append(header);
+        card.append(element("div", "meta", item.indicator_type.toUpperCase() + " · " + item.status.replace("_", " ") + " · " + item.source_label));
+        if (item.location_label || item.country) card.append(element("div", "meta", [item.location_label, item.country].filter(Boolean).join(" · ") + " · approximate GeoIP / analyst location"));
+        if (item.latitude !== null && item.longitude !== null) card.append(element("div", "meta", "Map point: " + Number(item.latitude).toFixed(4) + ", " + Number(item.longitude).toFixed(4)));
+        if (item.notes) card.append(element("p", "", item.notes));
+        const actions = element("div", "actions");
+        const select = document.createElement("select");
+        ["under_review", "confirmed", "false_positive"].forEach((status) => {
+          const option = document.createElement("option"); option.value = status;
+          option.textContent = status.replace("_", " "); if (status === item.status) option.selected = true;
+          select.append(option);
+        });
+        const save = element("button", "button secondary", "Update status"); save.type = "button";
+        save.addEventListener("click", async () => {
+          save.disabled = true;
+          try {
+            await api("/api/v1/admin/network-indicators/" + encodeURIComponent(item.id), { method: "PATCH", body: JSON.stringify({ status: select.value }) });
+            await Promise.all([loadNetworkIndicators(), loadOverview(), loadAudit()]);
+          } catch (error) { alert(error.message); save.disabled = false; }
+        });
+        actions.append(select, save); card.append(actions); root.append(card);
+      });
+    } catch (error) {
+      root.replaceChildren(element("div", "empty", error.message));
+    }
+  }
+
+  async function loadUsers() {
+    const root = $("#user-list");
+    try {
+      const users = await api("/api/v1/admin/users");
+      root.replaceChildren();
+      if (!users.length) { root.append(element("div", "empty", "No registered accounts yet.")); return; }
+      users.slice(0, 100).forEach((user) => {
+        const row = element("div", "user-row");
+        const details = element("div", "user-row-main");
+        details.append(element("strong", "", user.email));
+        details.append(element("small", "", "Joined " + user.created_at));
+        row.append(details, element("span", "pill " + (user.role === "superadmin" ? "high" : "medium"), user.role));
+        root.append(row);
+      });
+    } catch (error) { root.replaceChildren(element("div", "empty", error.message)); }
+  }
+
+  async function loadAudit() {
+    const root = $("#audit-list");
+    try {
+      const items = await api("/api/v1/admin/audit");
+      root.replaceChildren();
+      if (!items.length) { root.append(element("div", "empty", "No admin actions have been recorded yet.")); return; }
+      items.forEach((item) => {
+        const row = element("div", "audit-row");
+        row.append(element("strong", "", item.action.replace(/_/g, " ")));
+        row.append(element("small", "", (item.actor_email || "System") + " · " + item.entity_type + " · " + item.created_at));
+        root.append(row);
+      });
+    } catch (error) { root.replaceChildren(element("div", "empty", error.message)); }
+  }
+
+  $("#network-form").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const status = $("#ioc-message"); status.textContent = "Saving indicator…";
+    const lat = $("#ioc-lat").value.trim(); const lon = $("#ioc-lon").value.trim();
+    if ((lat && !lon) || (!lat && lon)) { status.textContent = "Enter both latitude and longitude or leave both blank."; return; }
+    const payload = {
+      indicator_type: $("#ioc-type").value,
+      indicator: $("#ioc-value").value,
+      severity: $("#ioc-severity").value,
+      location_label: $("#ioc-location").value || null,
+      country: $("#ioc-country").value || null,
+      latitude: lat ? Number(lat) : null,
+      longitude: lon ? Number(lon) : null,
+      source_label: $("#ioc-source").value,
+      notes: $("#ioc-notes").value || null,
+    };
+    try {
+      await api("/api/v1/admin/network-indicators", { method: "POST", body: JSON.stringify(payload) });
+      $("#network-form").reset(); status.textContent = "Indicator added to the review queue.";
+      await Promise.all([loadNetworkIndicators(), loadOverview(), loadAudit()]);
+    } catch (error) { status.textContent = error.message; }
+  });
+  $("#refresh-iocs").addEventListener("click", loadNetworkIndicators);
+  $("#refresh-users").addEventListener("click", loadUsers);
+  $("#refresh-audit").addEventListener("click", loadAudit);
+
   $("#notice-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     const status = $("#notice-message-status");
@@ -142,7 +287,7 @@
       await Promise.all([loadAlerts(), loadOverview()]);
     } catch (error) { status.textContent = error.message; }
   });
-  $("#refresh").addEventListener("click", async () => { await Promise.all([loadOverview(), loadSos(), loadAlerts()]); });
+  $("#refresh").addEventListener("click", async () => { await Promise.all([loadOverview(), loadSos(), loadAlerts(), loadNetworkIndicators(), loadUsers(), loadAudit()]); });
   $("#sign-out").addEventListener("click", () => { token = ""; sessionStorage.removeItem(tokenKey); dashboard.classList.add("hidden"); denied.classList.add("hidden"); authPanel.classList.remove("hidden"); showAuthMessage("You have signed out."); });
   verifySession();
 })();
