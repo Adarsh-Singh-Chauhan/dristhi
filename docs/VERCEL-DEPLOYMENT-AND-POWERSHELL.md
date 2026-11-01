@@ -2,37 +2,35 @@
 
 ## Architecture
 
-- Frontend: static assets in \`public/\`, delivered by Vercel.
-- Backend: FastAPI application exported by root \`index.py\`.
-- API documentation: \`/docs\`, \`/redoc\`, \`/openapi.json\`.
-- Production persistence: PostgreSQL via \`DATABASE_URL\`.
+- Frontend: static assets in `public/`, delivered by Vercel.
+- Backend: FastAPI application exported by root `index.py`.
+- Production Function region: Mumbai (`bom1`).
+- Git integration: pushes to `main` trigger Vercel production deployments.
+- API documentation: `/docs`, `/redoc`, `/openapi.json`.
+- Production persistence: PostgreSQL via `DATABASE_URL`.
 
-## Vercel import
+## Live Vercel project
 
-1. Open https://vercel.com/new.
-2. Import GitHub repository \`Adarsh-Singh-Chauhan/dristhi\`.
-3. Keep the repository root as Root Directory.
-4. Use Python / FastAPI framework detection.
-5. Ensure root \`requirements.txt\`, \`index.py\` and \`vercel.json\` are detected.
-6. Add environment variables in Project Settings:
-   - \`JWT_SECRET_KEY\`: long, random secret.
-   - \`DATABASE_URL\`: PostgreSQL connection string.
-   - \`ACCESS_TOKEN_TTL_MINUTES\`: \`60\`.
-7. Deploy the \`main\` branch.
+The project is already linked to GitHub and deployed. No manual import is required.
+
+- App: https://dristhi-five.vercel.app/
+- Swagger: https://dristhi-five.vercel.app/docs
+- Health: https://dristhi-five.vercel.app/health
+- Repository: https://github.com/Adarsh-Singh-Chauhan/dristhi
+
+The Vercel project has a stable `JWT_SECRET_KEY` and `ACCESS_TOKEN_TTL_MINUTES=60` configured as environment variables. A persistent PostgreSQL `DATABASE_URL` is not configured yet. The hosted app therefore supports anonymous analysis, but account registration, sign-in and saved history stay disabled until a dedicated database is connected.
 
 ## Environment / database
 
 Vercel Function filesystems are ephemeral. Do not use SQLite for production accounts/history.
 
-Use PostgreSQL and set the pooled or direct connection string as \`DATABASE_URL\`. Never commit credentials.
+Use PostgreSQL and set the pooled or direct connection string as `DATABASE_URL`. Never commit credentials.
 
 ## Production URLs
 
-Replace these after Vercel returns the actual project domain:
-
-- App: \`https://YOUR-VERCEL-DOMAIN.vercel.app/\`
-- Swagger: \`https://YOUR-VERCEL-DOMAIN.vercel.app/docs\`
-- Health: \`https://YOUR-VERCEL-DOMAIN.vercel.app/health\`
+- App: https://dristhi-five.vercel.app/
+- Swagger: https://dristhi-five.vercel.app/docs
+- Health: https://dristhi-five.vercel.app/health
 
 ## Windows PowerShell — run locally
 
@@ -66,7 +64,7 @@ Set-Location .\frontend
 python -m http.server 5500 --bind 127.0.0.1
 ~~~
 
-Open \`http://127.0.0.1:5500\`. Swagger: \`http://127.0.0.1:8000/docs\`.
+Open `http://127.0.0.1:5500`. Swagger: `http://127.0.0.1:8000/docs`.
 
 ## Vercel CLI — deploy from PowerShell
 
