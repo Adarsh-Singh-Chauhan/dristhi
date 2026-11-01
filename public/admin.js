@@ -3,6 +3,9 @@
   const configuredApiBase = typeof window.DRISHTI_API_BASE === "string" ? window.DRISHTI_API_BASE.trim() : "";
   const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
   const API_BASE = (configuredApiBase || (isLocalHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
+  const configuredApiBase = typeof window.DRISHTI_API_BASE === "string" ? window.DRISHTI_API_BASE.trim() : "";
+  const localHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  const apiBase = (configuredApiBase || (localHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
   const tokenKey = "drishti_access_token";
   let token = sessionStorage.getItem(tokenKey) || "";
   const authPanel = $("#auth-panel");
