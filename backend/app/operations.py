@@ -1,7 +1,9 @@
 """DRISHTI alerts, trusted contacts, SOS workflow and admin endpoints."""
 from __future__ import annotations
 
+import ipaddress
 import json
+import re
 import uuid
 from typing import Any, Literal
 
@@ -69,9 +71,43 @@ def initialize_operations_schema(connection: Any, is_postgres: bool) -> None:
         "CREATE INDEX IF NOT EXISTS idx_contacts_user ON trusted_contacts(user_id)",
         "CREATE INDEX IF NOT EXISTS idx_sos_status_created ON sos_reports(status, created_at DESC)",
         "CREATE INDEX IF NOT EXISTS idx_admin_audit_created ON admin_audit_log(created_at DESC)",
+        """CREATE TABLE IF NOT EXISTS network_indicators (
+            id TEXT PRIMARY KEY,
+            indicator_type TEXT NOT NULL CHECK (indicator_type IN ('ip', 'domain')),
+            indicator TEXT NOT NULL,
+            severity TEXT NOT NULL DEFAULT 'medium',
+            status TEXT NOT NULL DEFAULT 'under_review',
+            location_label TEXT,
+            country TEXT,
+            latitude DOUBLE PRECISION,
+            longitude DOUBLE PRECISION,
+            source_label TEXT NOT NULL,
+            notes TEXT,
+            created_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_network_indicators_created ON network_indicators(created_at DESC)",
     ]
     for statement in statements:
         connection.execute(statement)
+
+    # Additive migration for existing installations; earlier tables and records remain intact.
+    if is_postgres:
+        connection.execute("ALTER TABLE sos_reports ADD COLUMN IF NOT EXISTS location_shared BOOLEAN NOT NULL DEFAULT FALSE")
+        connection.execute("ALTER TABLE sos_reports ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION")
+        connection.execute("ALTER TABLE sos_reports ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION")
+        connection.execute("ALTER TABLE sos_reports ADD COLUMN IF NOT EXISTS location_accuracy_m DOUBLE PRECISION")
+    else:
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(sos_reports)").fetchall()}
+        for name, definition in (
+            ("location_shared", "BOOLEAN NOT NULL DEFAULT 0"),
+            ("latitude", "REAL"),
+            ("longitude", "REAL"),
+            ("location_accuracy_m", "REAL"),
+        ):
+            if name not in columns:
+                connection.execute(f"ALTER TABLE sos_reports ADD COLUMN {name} {definition}")
 
 
 class TrustedContactInput(BaseModel):
@@ -86,6 +122,26 @@ class SOSCreate(BaseModel):
     source_url: str | None = Field(default=None, max_length=2048)
     urgency: Literal["normal", "high", "urgent"] = "high"
     trusted_contact_ids: list[str] = Field(default_factory=list, max_length=5)
+    share_location: bool = False
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+    location_accuracy_m: float | None = Field(default=None, ge=0, le=100000)
+
+
+class NetworkIndicatorInput(BaseModel):
+    indicator_type: Literal["ip", "domain"]
+    indicator: str = Field(min_length=3, max_length=253)
+    severity: Literal["low", "medium", "high", "critical"] = "medium"
+    location_label: str | None = Field(default=None, max_length=160)
+    country: str | None = Field(default=None, max_length=80)
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+    source_label: str = Field(min_length=3, max_length=200)
+    notes: str | None = Field(default=None, max_length=1200)
+
+
+class NetworkIndicatorReview(BaseModel):
+    status: Literal["under_review", "confirmed", "false_positive"]
 
 
 class SOSReview(BaseModel):
@@ -192,6 +248,11 @@ def build_operations_router(
         selected_ids = list(dict.fromkeys(payload.trusted_contact_ids))
         if len(selected_ids) > 5:
             raise HTTPException(status_code=422, detail="Select no more than five trusted contacts.")
+        if payload.share_location and (payload.latitude is None or payload.longitude is None):
+            raise HTTPException(status_code=422, detail="Location sharing was selected, but the device did not provide coordinates. Retry or submit without location.")
+        shared_latitude = payload.latitude if payload.share_location else None
+        shared_longitude = payload.longitude if payload.share_location else None
+        shared_accuracy = payload.location_accuracy_m if payload.share_location else None
         with database() as connection:
             for contact_id in selected_ids:
                 found = connection.execute(
@@ -205,11 +266,13 @@ def build_operations_router(
             connection.execute(
                 """INSERT INTO sos_reports(
                     id, user_id, title, details, source_url, urgency, status,
-                    trusted_contact_ids_json, review_notes, reviewed_by, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, 'open', ?, NULL, NULL, ?, ?)""",
+                    trusted_contact_ids_json, review_notes, reviewed_by, created_at, updated_at,
+                    location_shared, latitude, longitude, location_accuracy_m
+                ) VALUES (?, ?, ?, ?, ?, ?, 'open', ?, NULL, NULL, ?, ?, ?, ?, ?, ?)""",
                 (
                     report_id, user["id"], payload.title.strip(), payload.details.strip(),
                     payload.source_url, payload.urgency, json.dumps(selected_ids), now, now,
+                    bool(payload.share_location), shared_latitude, shared_longitude, shared_accuracy,
                 ),
             )
             connection.execute(
@@ -234,7 +297,8 @@ def build_operations_router(
         with database() as connection:
             rows = connection.execute(
                 """SELECT id, title, details, source_url, urgency, status,
-                          trusted_contact_ids_json, review_notes, created_at, updated_at
+                          trusted_contact_ids_json, review_notes, created_at, updated_at,
+                          location_shared, latitude, longitude, location_accuracy_m
                    FROM sos_reports WHERE user_id = ? ORDER BY created_at DESC LIMIT 100""",
                 (user["id"],),
             ).fetchall()
@@ -254,7 +318,8 @@ def build_operations_router(
             ).fetchone()["total"]
             total_sos = connection.execute("SELECT COUNT(*) AS total FROM sos_reports").fetchone()["total"]
             alerts = connection.execute("SELECT COUNT(*) AS total FROM alerts").fetchone()["total"]
-        return {"users": users, "open_sos": open_sos, "total_sos": total_sos, "alerts": alerts}
+            network_indicators = connection.execute("SELECT COUNT(*) AS total FROM network_indicators").fetchone()["total"]
+        return {"users": users, "open_sos": open_sos, "total_sos": total_sos, "alerts": alerts, "network_indicators": network_indicators}
 
     @router.get("/api/v1/admin/sos", tags=["Administration"])
     def admin_list_sos(user: Any = Depends(require_admin)) -> list[dict]:
@@ -262,7 +327,8 @@ def build_operations_router(
             rows = connection.execute(
                 """SELECT s.id, s.title, s.details, s.source_url, s.urgency, s.status,
                           s.trusted_contact_ids_json, s.review_notes, s.created_at,
-                          s.updated_at, u.email AS reporter_email
+                          s.updated_at, s.location_shared, s.latitude, s.longitude,
+                          s.location_accuracy_m, u.email AS reporter_email
                    FROM sos_reports s
                    JOIN users u ON u.id = s.user_id
                    ORDER BY s.created_at DESC LIMIT 200"""
@@ -335,5 +401,112 @@ def build_operations_router(
                 ),
             )
         return {"id": alert_id, "created_at": now}
+
+
+    @router.get("/api/v1/admin/users", tags=["Administration"])
+    def admin_list_users(user: Any = Depends(require_admin)) -> list[dict]:
+        with database() as connection:
+            rows = connection.execute(
+                "SELECT id, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 500"
+            ).fetchall()
+        return [_plain(row) for row in rows]
+
+    @router.get("/api/v1/admin/audit", tags=["Administration"])
+    def admin_audit_log(user: Any = Depends(require_admin)) -> list[dict]:
+        with database() as connection:
+            rows = connection.execute(
+                """SELECT a.id, a.action, a.entity_type, a.entity_id, a.metadata_json,
+                          a.created_at, u.email AS actor_email
+                   FROM admin_audit_log a
+                   LEFT JOIN users u ON u.id = a.actor_user_id
+                   ORDER BY a.created_at DESC LIMIT 100"""
+            ).fetchall()
+        items = []
+        for row in rows:
+            item = _plain(row)
+            try:
+                item["metadata"] = json.loads(item.pop("metadata_json") or "{}")
+            except (TypeError, ValueError):
+                item["metadata"] = {}
+            items.append(item)
+        return items
+
+    @router.get("/api/v1/admin/network-indicators", tags=["Threat Intelligence"])
+    def admin_list_network_indicators(user: Any = Depends(require_admin)) -> list[dict]:
+        with database() as connection:
+            rows = connection.execute(
+                """SELECT id, indicator_type, indicator, severity, status, location_label,
+                          country, latitude, longitude, source_label, notes, created_at, updated_at
+                   FROM network_indicators ORDER BY created_at DESC LIMIT 300"""
+            ).fetchall()
+        return [_plain(row) for row in rows]
+
+    @router.post("/api/v1/admin/network-indicators", status_code=201, tags=["Threat Intelligence"])
+    def admin_add_network_indicator(payload: NetworkIndicatorInput, user: Any = Depends(require_admin)) -> dict:
+        indicator = payload.indicator.strip().lower().rstrip(".")
+        if payload.indicator_type == "ip":
+            try:
+                parsed_ip = ipaddress.ip_address(indicator)
+            except ValueError as exc:
+                raise HTTPException(status_code=422, detail="Enter a valid IPv4 or IPv6 address.") from exc
+            if not parsed_ip.is_global:
+                raise HTTPException(status_code=422, detail="Only publicly routable IP indicators are accepted. Private, local and reserved ranges are not tracked.")
+            indicator = str(parsed_ip)
+        else:
+            domain_pattern = r"^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$"
+            if not re.fullmatch(domain_pattern, indicator):
+                raise HTTPException(status_code=422, detail="Enter a domain name only, without a URL path or protocol.")
+        if (payload.latitude is None) != (payload.longitude is None):
+            raise HTTPException(status_code=422, detail="Provide both latitude and longitude, or leave both blank.")
+        indicator_id = str(uuid.uuid4())
+        now = utc_now()
+        with database() as connection:
+            connection.execute(
+                """INSERT INTO network_indicators(
+                    id, indicator_type, indicator, severity, status, location_label, country,
+                    latitude, longitude, source_label, notes, created_by, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, 'under_review', ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    indicator_id, payload.indicator_type, indicator, payload.severity,
+                    payload.location_label.strip() if payload.location_label else None,
+                    payload.country.strip() if payload.country else None,
+                    payload.latitude, payload.longitude, payload.source_label.strip(),
+                    payload.notes.strip() if payload.notes else None, user["id"], now, now,
+                ),
+            )
+            connection.execute(
+                """INSERT INTO admin_audit_log
+                   (id, actor_user_id, action, entity_type, entity_id, metadata_json, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    str(uuid.uuid4()), user["id"], "add_network_indicator", "network_indicator",
+                    indicator_id, json.dumps({"indicator_type": payload.indicator_type, "severity": payload.severity}),
+                    now,
+                ),
+            )
+        return {"id": indicator_id, "indicator": indicator, "status": "under_review", "created_at": now}
+
+    @router.patch("/api/v1/admin/network-indicators/{indicator_id}", tags=["Threat Intelligence"])
+    def admin_review_network_indicator(
+        indicator_id: str, payload: NetworkIndicatorReview, user: Any = Depends(require_admin)
+    ) -> dict:
+        now = utc_now()
+        with database() as connection:
+            cursor = connection.execute(
+                "UPDATE network_indicators SET status = ?, updated_at = ? WHERE id = ?",
+                (payload.status, now, indicator_id),
+            )
+            if cursor.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Network indicator not found.")
+            connection.execute(
+                """INSERT INTO admin_audit_log
+                   (id, actor_user_id, action, entity_type, entity_id, metadata_json, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    str(uuid.uuid4()), user["id"], "review_network_indicator", "network_indicator",
+                    indicator_id, json.dumps({"status": payload.status}), now,
+                ),
+            )
+        return {"id": indicator_id, "status": payload.status, "updated_at": now}
 
     return router
