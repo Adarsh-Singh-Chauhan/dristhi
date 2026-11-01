@@ -22,7 +22,7 @@ Supabase currently allows up to **two active Free projects** across all organiza
 2. Go to **SQL Editor → New query**.
 3. Open `supabase/migrations/202611010001_drishti_core_admin_alerts_sos.sql` in this repository.
 4. Paste the complete SQL into the editor and run it once.
-5. Confirm that the tables `users`, `analyses`, `alerts`, `trusted_contacts`, `sos_reports`, and `admin_audit_log` exist.
+5. Confirm that the tables `users`, `analyses`, `alerts`, `trusted_contacts`, `sos_reports`, `admin_audit_log`, and `network_indicators` exist. The migration also adds optional SOS location columns (`location_shared`, `latitude`, `longitude`, `location_accuracy_m`) without removing earlier records or fields.
 
 The migration enables Row Level Security and creates no public policies. The application accesses these tables through the server-side PostgreSQL connection only. Do not expose a database password or service-role key in browser JavaScript.
 
@@ -71,7 +71,7 @@ The script promotes only an existing account to `superadmin`, serialises simulta
 
 ## 5. Zero-cost alerts and SOS scope
 
-The initial zero-cost design uses **in-app alerts** and an **admin SOS review queue**. A high-priority analysis can create an in-app review alert for the signed-in user. Selecting trusted contacts records who the user wants to involve, but it does not silently send SMS, WhatsApp, or email. Automatic contact delivery or background push needs a separately configured provider and may create usage or third-party charges. Do not enable one without a separate cost review and explicit approval.
+The zero-cost design uses **in-app alerts**, an **admin SOS review queue**, and a manually curated defensive IOC register. The migration adds `network_indicators` and optional GPS snapshot columns to SOS reports. Network indicator geolocation is entered by the Superadmin as approximate context; DRISHTI does not call an IP-to-person or live visitor-tracking service. A high-priority analysis can create an in-app review alert for the signed-in user. Selecting trusted contacts records who the user wants to involve, but it does not silently send SMS, WhatsApp, or email. Automatic contact delivery or background push needs a separately configured provider and may create usage or third-party charges. Do not enable one without a separate cost review and explicit approval.
 
 The current analysis engine evaluates content submitted by a user; it does not silently scan private WhatsApp, Instagram, Telegram, or other accounts, and it does not continuously monitor public feeds. An automatic analysis alert means “high review priority / verify this”, not “confirmed misinformation”. SOS is an urgent request for DRISHTI reviewers; it is not an automatic police, ambulance, or emergency-services dispatch.
 
@@ -81,4 +81,4 @@ Keep the existing Vercel deployment on **Hobby ($0)**; do not start a Pro trial 
 
 ## 7. What is not enabled yet
 
-Creating the Supabase organization/project and adding `DATABASE_URL` are owner-controlled setup steps. Until those are completed and verified, production account registration, saved history, persistent alerts, SOS storage, and the admin console remain unavailable. Do not share the database password or any service-role key; only share the project reference/URL and a confirmation that the environment variable is configured.
+Creating the Supabase organization/project and adding `DATABASE_URL` are owner-controlled setup steps. User-consented GPS snapshots, network indicator persistence, the global signal map, account overview, and audit records also require the PostgreSQL connection to be active. Until those are completed and verified, production account registration, saved history, persistent alerts, SOS storage, and the admin console remain unavailable. Do not share the database password or any service-role key; only share the project reference/URL and a confirmation that the environment variable is configured.
