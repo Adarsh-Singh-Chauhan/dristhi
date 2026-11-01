@@ -1,9 +1,6 @@
 (() => {
   const $ = (selector) => document.querySelector(selector);
   const configuredApiBase = typeof window.DRISHTI_API_BASE === "string" ? window.DRISHTI_API_BASE.trim() : "";
-  const isLocalHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
-  const API_BASE = (configuredApiBase || (isLocalHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
-  const configuredApiBase = typeof window.DRISHTI_API_BASE === "string" ? window.DRISHTI_API_BASE.trim() : "";
   const localHost = ["localhost", "127.0.0.1"].includes(window.location.hostname);
   const apiBase = (configuredApiBase || (localHost ? "http://127.0.0.1:8000" : "")).replace(/\/$/, "");
   const tokenKey = "drishti_access_token";
@@ -15,7 +12,7 @@
   const api = async (path, options = {}) => {
     const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
     if (token) headers.Authorization = "Bearer " + token;
-    const response = await fetch(API_BASE + path, { ...options, headers });
+    const response = await fetch(apiBase + path, { ...options, headers });
     const raw = await response.text(); let data = {};
     try { data = raw ? JSON.parse(raw) : {}; } catch {}
     if (!response.ok) throw new Error(data.detail || ("Request failed (" + response.status + ")"));
@@ -56,7 +53,7 @@
   async function loadSos() {
     const root=$("#sos-history"); const items=await api("/api/v1/sos/mine"); root.replaceChildren();
     if(!items.length){root.append(el("div","empty","No SOS requests submitted."));return;}
-    items.forEach((item)=>{const card=el("article","card");const head=el("div","panel-head");head.append(el("h3","",item.title),el("span","pill "+item.status,item.status.replace("_"," ")));card.append(head,el("p","",item.details),el("div","meta",item.urgency+" · "+item.created_at));if(item.review_notes)card.append(el("p","", "Reviewer note: "+item.review_notes));root.append(card);});
+    items.forEach((item)=>{const card=el("article","card");const head=el("div","panel-head");head.append(el("h3","",item.title),el("span","pill "+item.status,item.status.replace("_"," ")));card.append(head,el("p","",item.details),el("div","meta",item.urgency+" · "+item.created_at));if(item.location_shared && Number.isFinite(item.latitude) && Number.isFinite(item.longitude)){card.append(el("div","meta","GPS shared for this SOS · "+Number(item.latitude).toFixed(5)+", "+Number(item.longitude).toFixed(5)));}if(item.review_notes)card.append(el("p","", "Reviewer note: "+item.review_notes));root.append(card);});
   }
   async function refreshAll() {
     try { await Promise.all([loadAlerts(),loadContacts(),loadSos()]); }
@@ -67,11 +64,56 @@
     try {await api("/api/v1/trusted-contacts",{method:"POST",body:JSON.stringify({name:$("#contact-name").value,email:$("#contact-email").value||null,phone:$("#contact-phone").value||null})});$("#contact-form").reset();$("#contact-message").textContent="Trusted contact saved.";await loadContacts();}
     catch(error){$("#contact-message").textContent=error.message;}
   });
+  function getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("This browser does not support GPS location sharing."));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          location_accuracy_m: Number.isFinite(position.coords.accuracy) ? position.coords.accuracy : null,
+        }),
+        (error) => {
+          const messages = {
+            1: "Location permission was denied. Enable it for this site or untick location sharing and submit without GPS.",
+            2: "Your device could not determine a location. Retry or submit without GPS.",
+            3: "GPS request timed out. Retry or submit without GPS.",
+          };
+          reject(new Error(messages[error.code] || "Unable to read device location."));
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    });
+  }
+
   $("#sos-form").addEventListener("submit",async(event)=>{
-    event.preventDefault();$("#sos-message").textContent="Submitting SOS…";
+    event.preventDefault();
+    const status = $("#sos-message");
+    status.textContent = "Preparing your SOS request…";
     const selected=[...document.querySelectorAll("#contact-choices input:checked")].map((item)=>item.value);
-    try {const result=await api("/api/v1/sos",{method:"POST",body:JSON.stringify({title:$("#sos-title").value,details:$("#sos-details").value,source_url:$("#sos-url").value||null,urgency:$("#sos-urgency").value,trusted_contact_ids:selected})});$("#sos-form").reset();$("#sos-message").textContent=result.message+" Selected contacts: "+result.selected_trusted_contacts+". No external messages sent.";await refreshAll();}
-    catch(error){$("#sos-message").textContent=error.message;}
+    const shareLocation = $("#sos-share-location").checked;
+    try {
+      const location = shareLocation ? await getCurrentLocation() : {};
+      status.textContent = "Submitting SOS…";
+      const payload = {
+        title: $("#sos-title").value,
+        details: $("#sos-details").value,
+        source_url: $("#sos-url").value || null,
+        urgency: $("#sos-urgency").value,
+        trusted_contact_ids: selected,
+        share_location: shareLocation,
+        ...location,
+      };
+      const result=await api("/api/v1/sos",{method:"POST",body:JSON.stringify(payload)});
+      $("#sos-form").reset();
+      status.textContent=result.message+" Selected contacts: "+result.selected_trusted_contacts+". "+(shareLocation ? "Your GPS snapshot was shared with the Superadmin for this SOS only. " : "No location was shared. ")+"No external messages sent.";
+      await refreshAll();
+    } catch(error) {
+      status.textContent=error.message;
+    }
   });
   $("#refresh").addEventListener("click",refreshAll);
   if(token){start().catch((error)=>{token="";sessionStorage.removeItem(tokenKey);$("#auth-message").textContent=error.message;});}
