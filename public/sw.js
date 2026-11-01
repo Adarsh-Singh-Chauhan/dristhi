@@ -1,30 +1,51 @@
-const CACHE_NAME = "drishti-shell-v1";
-const SHELL = ["/", "/index.html", "/styles.css", "/app.js", "/config.js", "/alerts.html", "/alerts.js", "/admin.html", "/admin.js", "/operations.css", "/manifest.webmanifest", "/icon-192.svg", "/icon-512.svg", "/offline.html"];
+const CACHE_NAME = "drishti-shell-v3";
+const SHELL_URLS = ["/", "/admin.html", "/alerts.html", "/guide.html", "/styles.css", "/operations.css", "/app.js", "/admin.js", "/alerts.js", "/config.js", "/manifest.webmanifest", "/icons/drishti-icon.svg"];
+
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await Promise.allSettled(SHELL_URLS.map((url) => cache.add(url)));
+    await self.skipWaiting();
+  })());
 });
 self.addEventListener("activate", (event) => {
-  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))).then(() => self.clients.claim()));
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => key.startsWith("drishti-shell-") && key !== CACHE_NAME).map((key) => caches.delete(key)));
+    await self.clients.claim();
+  })());
 });
 self.addEventListener("fetch", (event) => {
   const request = event.request;
+  if (request.method !== "GET") return;
   const url = new URL(request.url);
-  if (request.method !== "GET" || url.origin !== self.location.origin) return;
-  // Never cache API, health, authentication, history, or emergency-request responses.
-  if (url.pathname.startsWith("/api/") || ["/health", "/docs", "/openapi.json", "/redoc"].includes(url.pathname)) return;
+  if (url.origin !== self.location.origin) return;
+  // Never cache account, analysis, SOS, admin or health API responses.
+  if (url.pathname.startsWith("/api/") || url.pathname === "/health" || url.pathname === "/docs" || url.pathname.startsWith("/openapi")) return;
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).then((response) => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-      return response;
-    }).catch(async () => (await caches.match(request)) || (await caches.match("/offline.html"))));
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(request);
+        if (response && response.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, response.clone()).catch(() => {});
+        }
+        return response;
+      } catch {
+        return (await caches.match(request)) || (await caches.match("/")) || Response.error();
+      }
+    })());
     return;
   }
-  event.respondWith(caches.match(request).then((cached) => {
+  event.respondWith((async () => {
+    const cached = await caches.match(request);
     const network = fetch(request).then((response) => {
-      if (response && response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+      if (response && response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
+      }
       return response;
     }).catch(() => cached);
     return cached || network;
-  }));
+  })());
 });
