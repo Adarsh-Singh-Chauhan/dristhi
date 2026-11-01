@@ -16,6 +16,8 @@
 
 **Created by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
 
+**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
+
 </div>
 
 ---
