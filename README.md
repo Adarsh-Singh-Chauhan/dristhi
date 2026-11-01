@@ -16,7 +16,7 @@
 
 **Created by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
 
-**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & first-admin setup](docs/SUPABASE-FREE-SETUP.md)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
+**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & first-admin setup](docs/SUPABASE-FREE-SETUP.md)** · **[Alerts & SOS](https://dristhi-five.vercel.app/alerts.html)** · **[Admin Console](https://dristhi-five.vercel.app/admin.html)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
 
 </div>
 
