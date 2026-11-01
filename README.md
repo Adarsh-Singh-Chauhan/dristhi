@@ -16,7 +16,7 @@
 
 **Created by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
 
-**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
+**[Vercel deployment & Windows PowerShell guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & first-admin setup](docs/SUPABASE-FREE-SETUP.md)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
 
 </div>
 
@@ -26,7 +26,7 @@
 
 ## Live deployment status (1 November 2026)
 
-The frontend and FastAPI service are deployed on Vercel. Anonymous message analysis is available. The production health endpoint currently reports `storage: unconfigured`: user registration, sign-in and saved history remain disabled until a persistent PostgreSQL `DATABASE_URL` is added to the Vercel project. Local development continues to use SQLite by default. The current detector is a deterministic, explainable rule-based baseline—not a trained AI model or an external fact-checking service.
+The frontend and FastAPI service are deployed on Vercel. Anonymous message analysis is available. The production health endpoint currently reports `storage: unconfigured`: user registration, sign-in, saved history, in-app alerts, SOS persistence and the role-restricted admin console remain unavailable until a persistent PostgreSQL `DATABASE_URL` is added to the Vercel project. The Alerts & SOS workspace and Admin Console pages, API routes, database migration and first-admin setup procedure are now in the repository and await database activation. Local development continues to use SQLite by default. The current detector is a deterministic, explainable rule-based baseline—not a trained AI model or an external fact-checking service.
 
 ## 01 · Project overview
 
@@ -92,6 +92,9 @@ The score is **not a probability that a claim is false**. It is a transparent tr
 - Short-lived JWT bearer access tokens.
 - SQLite persistence for users and saved analysis summaries.
 - Authenticated analysis history and per-record deletion.
+- In-app review-priority alerts, trusted-contact records and user SOS submission endpoints.
+- Role-restricted admin APIs for SOS review, audit logging and in-app notices.
+- Dedicated Alerts & SOS and Admin Console pages; persistence activates after PostgreSQL setup.
 - FastAPI Swagger UI, OpenAPI schema and ReDoc.
 - Dockerfile and Docker Compose starter configuration.
 - Unit tests for the baseline analysis rules.
