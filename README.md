@@ -1,477 +1,341 @@
 <div align="center">
 
-<a href="https://github.com/Adarsh-Singh-Chauhan/dristhi">
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0B1220,45:123B55,100:12A89D&height=230&section=header&text=DRISHTI&fontSize=76&fontColor=FFFFFF&fontAlignY=38&animation=fadeIn&desc=Pause.%20Verify.%20Understand.&descAlignY=61&descSize=19" width="100%" alt="DRISHTI — Pause. Verify. Understand." />
-</a>
+# DRISHTI
 
-<img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=700&size=21&duration=2600&pause=800&color=55D6C2&center=true&vCenter=true&width=780&height=48&lines=Digital+misinformation+signal+analysis.;A+cybersecurity-led+approach+to+safer+sharing.;Detect+signals.+Check+evidence.+Keep+human+judgement." alt="Animated DRISHTI introduction" />
+### Pause. Verify. Understand.
 
-<p>
-<img src="https://img.shields.io/badge/Project-Cybersecurity%20MVP-0F766E?style=for-the-badge" alt="Cybersecurity MVP" />
-<img src="https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-<img src="https://img.shields.io/badge/Docs-Swagger%20%2F%20OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger OpenAPI" />
-<img src="https://img.shields.io/badge/Auth-JWT%20%2B%20scrypt-2563EB?style=for-the-badge" alt="JWT and scrypt" />
-<img src="https://img.shields.io/badge/Status-Early%20Prototype-F59E0B?style=for-the-badge" alt="Early prototype" />
-</p>
+**An information-integrity and defensive cyber-incident review workspace.**
+
+[![Live website](https://img.shields.io/badge/LIVE%20WEBSITE-Open%20DRISHTI-65d9c8?style=for-the-badge&logo=vercel&logoColor=071816)](https://dristhi-five.vercel.app/)
+[![Try demo](https://img.shields.io/badge/40--MIN%20DEMO-Try%20both%20roles-173c4d?style=for-the-badge&logo=googlechrome&logoColor=white)](https://dristhi-five.vercel.app/frontend/demo.html)
+[![API docs](https://img.shields.io/badge/API-Swagger%20Docs-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://dristhi-five.vercel.app/docs)
+
+[User guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Security notes](SECURITY.md) · [Supabase setup](docs/SUPABASE-FREE-SETUP.md)
 
 **Created by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
-
-**[Vercel deployment guide](docs/VERCEL-DEPLOYMENT-AND-POWERSHELL.md)** · **[Supabase Free & Superadmin setup](docs/SUPABASE-FREE-SETUP.md)** · **[Hinglish user guide](docs/USER-GUIDE-HINGLISH.md)** · **[Web user guide](https://dristhi-five.vercel.app/guide.html)** · **[Alerts & SOS](https://dristhi-five.vercel.app/alerts.html)** · **[Superadmin Control Room](https://dristhi-five.vercel.app/admin.html)** · **[Frontend source](frontend/)** · **[Backend source](backend/)**
 
 </div>
 
 ---
 
-**[Open the live DRISHTI workspace](https://dristhi-five.vercel.app/)** · **[API documentation](https://dristhi-five.vercel.app/docs)** · **[Health check](https://dristhi-five.vercel.app/health)**
+## 1. The objective
 
-## Live deployment status (1 November 2026)
+Information moves faster than its context. A forwarded message may omit the original source, date or location. A genuine photograph may be reused with a false caption. A public figure's video may be edited or synthetically generated. A suspicious link may imitate an official notice. During a crisis, a misleading claim can spread before a reader has time to verify it.
 
-The frontend and FastAPI service are deployed on Vercel. Anonymous message analysis is available. The production health endpoint currently reports `storage: unconfigured`: user registration, sign-in, saved history, in-app alerts, SOS persistence and the role-restricted admin console remain unavailable until a persistent PostgreSQL `DATABASE_URL` is added to the Vercel project. The Alerts & SOS workspace and Admin Console pages, API routes, database migration and first-admin setup procedure are now in the repository and await database activation. Local development continues to use SQLite by default. The current detector is a deterministic, explainable rule-based baseline—not a trained AI model or an external fact-checking service.
+**DRISHTI aims to create a responsible pause between receiving information and sharing it.**
 
-## Mobile user app & single-Superadmin console
+It brings together:
+- An accessible workspace for inspecting a public claim or message.
+- Explainable indicators that show *why* a message may need closer attention.
+- A case-file workflow for preserving a claim, source references and reviewer notes.
+- A separate Superadmin console for human review and evidence-backed outcomes.
+- A defensive public IP/domain indicator registry and privacy-scoped incident map.
+- A mobile-ready Progressive Web App (PWA), safety requests and a 40-minute guided demo.
 
-The existing browser workspace is also packaged as an **installable Progressive Web App (PWA)** for the user experience. It keeps the same analysis, account, history, alerts and SOS workflows rather than introducing a second disconnected codebase.
+> **Core principle:** A signal is a reason to investigate—not proof that a claim is false. A person must never be labelled or penalised solely because an automated score, keyword or IP address says so.
 
-- **User app:** responsive mobile layout, home-screen installation, thumb-friendly navigation, app icon and a small offline app shell. API actions still require a network connection.
-- **Superadmin:** a separate restricted control room at [`/admin.html`](https://dristhi-five.vercel.app/admin.html) for account-level overview, SOS review and in-app notices.
-- **One privileged account:** the bootstrap script promotes one existing registered account to `superadmin`. New registrations remain ordinary `user` accounts. Legacy `admin` role records continue to work during the transition.
-- **No public admin signup:** never publish the Superadmin email, password, database URL or token in this repository.
+## 2. Why this problem matters — selected evidence
 
-### Install the user app on Android
+The figures below are from published sources. They are context for the problem, **not measurements produced by DRISHTI**.
 
-1. Open the [DRISHTI workspace](https://dristhi-five.vercel.app/) in Chrome.
-2. Tap **Install app** when the browser offers it, or open the browser menu (⋮) and choose **Install app** / **Add to Home screen**.
-3. Launch DRISHTI from the new home-screen icon.
-
-The PWA shell can load previously cached interface files offline. Sign-in, message analysis, saved history, alerts and SOS require the API and configured persistent storage.
-
-### Superadmin activation
-
-Follow [the Supabase Free setup guide](docs/SUPABASE-FREE-SETUP.md). Register the intended owner account first, then run `scripts/promote_first_admin.py` locally with a private `DATABASE_URL`. The script serialises bootstrap attempts, refuses a second privileged account and never generates or stores a password.
-
-**Production limitation:** if `/health` still reports `storage: unconfigured`, server-side account creation, analysis history, persistent SOS and Superadmin APIs remain disabled until PostgreSQL is connected. The PWA packaging does not bypass this requirement.
-
-## Threat intelligence, location and privacy model
-
-The Superadmin workspace now includes a global signal map, a defensive network-indicator register, user/account overview and admin audit trail. These are additive to the existing analysis, history, alerts, trusted contacts, SOS review and notice workflows.
-
-- **User GPS:** an SOS submitter may explicitly tick a checkbox and approve the browser permission. One location snapshot is attached to that SOS only and shown to the Superadmin review team. No background or live device tracking is performed.
-- **IP/domain indicators:** the Superadmin may record public IP addresses or domains found in sources/logs they are authorised to investigate. Private, local and reserved IP ranges are rejected.
-- **IP location:** country/city/coordinates are optional analyst-entered approximate GeoIP context. It is not a person's GPS position, identity or home address; VPNs, proxies and carrier NAT can make it inaccurate.
-- **Global map:** plots user-consented SOS snapshots and manually geolocated public indicators. It is an operational snapshot, not a real-time people-tracking map.
-- **Visitor privacy:** DRISHTI does not automatically collect website visitors' IP addresses or resolve visitors to a physical location.
-
-### Defensive network-indicator API
-
-| Method | Endpoint | Access | Purpose |
-| --- | --- | --- | --- |
-| GET | /api/v1/admin/network-indicators | Superadmin | List public IP/domain observables |
-| POST | /api/v1/admin/network-indicators | Superadmin | Add a public indicator with evidence reference and optional approximate location |
-| PATCH | /api/v1/admin/network-indicators/{id} | Superadmin | Mark under review, confirmed or false positive |
-| GET | /api/v1/admin/users | Superadmin | View registered account metadata (never passwords) |
-| GET | /api/v1/admin/audit | Superadmin | Review recent privileged actions |
-
-The SOS endpoint accepts optional share_location, latitude, longitude and location_accuracy_m fields. Coordinates are ignored unless share_location is explicitly true. The database migration is additive and retains the earlier SOS fields and records.
-
-## 01 · Project overview
-
-**DRISHTI** is a cybersecurity-oriented information-integrity analysis prototype. It explores how suspicious messaging patterns, urgency-based forwards, unverified authority claims, panic language and shortened links can be surfaced for further human verification.
-
-The idea began with a practical observation: messages and posts can move quickly through WhatsApp, Instagram, Telegram and other digital channels. During sensitive events, misleading or context-free claims may trigger confusion, fear or harmful decisions before readers have time to check the source.
-
-DRISHTI aims to add a deliberate verification step between receiving a message and sharing it.
-
-> **Product principle:** Detect signals. Verify evidence. Never confuse a signal with proof.
-
-### What DRISHTI is — and is not
-
-| DRISHTI is | DRISHTI is not |
-| --- | --- |
-| A review-priority and content-signal assistant | An authority that declares a message true or false |
-| A tool for examining public claims and forwarded text | A political-opinion or ideology classifier |
-| A human-in-the-loop verification workflow | An automated censorship or takedown system |
-| A cybersecurity learning and prototyping project | A replacement for professional fact-checkers or official sources |
-
-Political criticism, dissent, journalism, satire and legitimate debate must not be treated as misinformation merely because of their viewpoint, target or tone. The same evidence standards should apply regardless of party, leader, institution or ideology.
-
-## 02 · Problem statement
-
-Digital communication has made information sharing immediate and borderless. The same speed also creates opportunities for misleading claims, impersonation, manipulated media and coordinated amplification.
-
-A message may:
-- Present an unverified claim as an urgent official announcement.
-- Ask recipients to forward it to every group or contact.
-- Remove the original date, source or surrounding context.
-- Use a shortened or unfamiliar link to redirect readers.
-- Reuse an old photograph, video or notice as if it were current.
-- Imitate the language or visual identity of a trusted institution.
-- Exploit a crisis, public-safety concern or breaking-news event to provoke panic.
-
-The challenge is not simply that false information exists. It is that ordinary readers often lack a quick, understandable way to identify warning signs and know what to verify next.
-
-**Core problem:** How might we help people and review teams recognise suspicious information-sharing patterns early, organise verification steps and make more informed decisions—without automatically labelling viewpoints, people or political positions as false?
-
-## 03 · Proposed solution
-
-DRISHTI provides a structured workflow:
-
-1. **Submit** — a user pastes text and optionally selects the platform or adds a source URL.
-2. **Inspect** — a transparent baseline engine checks for selected signals such as urgency, forwarding pressure, authority claims without a citation, panic language, shortened links and unusual text formatting.
-3. **Prioritise** — the system returns a low, medium or high review-priority label based only on the signals it detected.
-4. **Explain** — each matched signal is shown with a plain-language explanation.
-5. **Verify** — the interface suggests source, date, context, image and cross-publication checks.
-6. **Review history** — signed-in users can revisit or delete their saved analysis records.
-
-The score is **not a probability that a claim is false**. It is a transparent triage score for deciding whether additional review may be useful.
-
-## 04 · Current MVP capabilities
-
-- Responsive information-integrity workspace.
-- Manual text submission with platform selection.
-- Optional source URL field.
-- Transparent, explainable heuristic signal checks.
-- Review-priority score and matched-signal explanations.
-- Recommended verification checklist.
-- Separate User sign-in/registration and Superadmin sign-in page.
-- Installable PWA shell, app icon, offline static shell and responsive mobile navigation.
-- Hinglish quick user guide for user workflows, Superadmin setup, location sharing and mobile installation.
-- User-consented, one-time GPS snapshot for a submitted SOS request.
-- Global signal map for opt-in incident coordinates and analyst-supplied approximate public IOC locations.
-- Defensive IP/domain IOC registry with public-IP validation, severity, review status and audit events.
-- Superadmin account overview and privileged-action audit view.
-- User registration and login endpoints.
-- Password hashing using Python scrypt.
-- Short-lived JWT bearer access tokens.
-- SQLite persistence for users and saved analysis summaries.
-- Authenticated analysis history and per-record deletion.
-- In-app review-priority alerts, trusted-contact records and user SOS submission endpoints.
-- Role-restricted admin APIs for SOS review, audit logging and in-app notices.
-- Dedicated Alerts & SOS and Admin Console pages; persistence activates after PostgreSQL setup.
-- FastAPI Swagger UI, OpenAPI schema and ReDoc.
-- Dockerfile and Docker Compose starter configuration.
-- Unit tests for the baseline analysis rules.
-- Clear prototype limitations and responsible-use guidance.
-
-### Signal categories in the baseline engine
-
-| Signal | What it looks for | What it does not prove |
+| Published evidence | What it tells us | Source |
 | --- | --- | --- |
-| Urgency language | Phrases such as “act now” or “तुरंत” | That the claim is false |
-| Share pressure | “Forward to everyone” or similar prompts | That a campaign is coordinated |
-| Unverified authority wording | Institutional claims without a source in the submitted text | That the institution did not make the claim |
-| Forward markers | “Forwarded” or similar chain indicators | The original sender or intent |
-| Panic / threat wording | Alarm-oriented phrases | That the situation is harmless or dangerous |
-| Shortened links | Common URL shortener domains | That a destination is malicious |
-| Excessive capitalisation | High uppercase-letter ratio | A reliable deception signal by itself |
-| Repeated punctuation | Repeated exclamation or question marks | A factual verdict |
+| **2,913 fact-checks** published by the PIB Fact Check Unit as of 1 April 2026 | Government information integrity is an active public-information challenge. The unit's remit relates to misinformation concerning the Central Government. | [Ministry of Information & Broadcasting / PIB · 1 Apr 2026](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2247720&lang=1&reg=1) |
+| **53%** of the India survey sample named WhatsApp as the biggest misinformation threat | Messaging platforms are an important part of the misinformation conversation. This is a survey of English-language Indian news users with internet access—not a representative estimate of every Indian resident. | [Reuters Institute · Digital News Report 2025: India](https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2025/india) |
+| **1,400+ URLs** targeted for blocking during the Operation Sindoor misinformation response, according to a PIB release | False or misleading online material can involve links and distribution channels as well as text. | [Ministry of Information & Broadcasting / PIB · 2 Apr 2026](https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248361&lang=1&reg=3) |
 
-## 05 · Application preview
+### Real-world examples of manipulation
 
-The repository includes a lightweight web interface in the frontend directory.
+These are published fact-check / incident reports, **not DRISHTI detections**.
 
-- **Workspace:** enter a message, choose a platform and review the result.
-- **Signal report:** inspect the review-priority score, detected indicators and recommended checks.
-- **History:** view and delete saved analyses after signing in.
-- **Methodology:** understand what the baseline engine checks and where it can fail.
-- **API documentation:** explore endpoints through Swagger UI at /docs.
+- **AI-generated video attributed to Lt Gen Rajeev Puri:** News On AIR reported a government clarification about a fake AI-generated video circulating in India in July 2026. [Read the report](https://newsonair.gov.in/government-debunks-fake-ai-generated-video-of-lt-gen-rajeev-puri/).
+- **Manipulated police and minister videos:** AFP Fact Check reported on doctored clips shared around protests in August 2026, including altered audio compared with original footage. [Read the verification](https://factcheck.afp.com/doc.afp.com.C3KH4KF).
 
-The frontend can run in a clearly labelled local-demo mode when the API is unavailable. Demo mode is illustrative and does not save reports or authenticate users.
+These cases illustrate why an effective workflow needs source provenance, original media, publication date, context, independent corroboration and a human reviewer—not a single keyword score.
 
-## 06 · Technology stack
+## 3. The proposed solution
+
+~~~text
+SUBMIT
+  ↓
+INSPECT THE SIGNALS
+  ↓
+CHECK THE ORIGINAL SOURCE
+  ↓
+COLLECT EVIDENCE
+  ↓
+CREATE A CASE FILE
+  ↓
+HUMAN REVIEW
+  ↓
+RECORD A SOURCED OUTCOME
+~~~
+
+DRISHTI separates two very different questions:
+
+1. **Does this message contain patterns that deserve a closer look?** The current baseline can flag a limited set of textual and link indicators.
+2. **What does the available evidence establish?** This requires source review, context, corroboration and a human decision.
+
+A case can be marked as received, under review, verified false, supported by sources, misleading context, insufficient evidence or closed. A reviewed conclusion requires an evidence summary and one or more source URLs.
+
+## 4. Product preview
+
+### User workspace
+
+![DRISHTI user workspace concept](docs/assets/user-workspace-screen.svg)
+
+Users can submit a public claim, inspect matched indicators, read verification suggestions, create a case file and follow its status.
+
+### Superadmin control room
+
+![DRISHTI Superadmin control room concept](docs/assets/superadmin-control-room.svg)
+
+The restricted console is designed for the single Superadmin role: evidence review, SOS queue, defensive IOC registry, user overview, notices, global signal atlas and audit trail.
+
+### System architecture
+
+![DRISHTI architecture](docs/assets/architecture-overview.svg)
+
+See the full [architecture document](docs/ARCHITECTURE.md) and illustrated [user guide](docs/USER-GUIDE.md).
+
+*Note: the SVGs above are illustrative UI/architecture designs for documentation. They are not screenshots of live user records.*
+
+## 5. Product features
+
+| Area | Capability | Role |
+| --- | --- | --- |
+| Claim analysis | Manual submission, platform selection, optional public source URL, explainable indicators and verification checklist | User |
+| Analysis history | Private account history and per-record deletion | User |
+| Evidence case files | Create a case from an analysed claim; track status and reviewer evidence | User |
+| Case review | Review queue, evidence summary, source URLs, reviewer notes and sourced outcomes | Superadmin |
+| Alerts | In-app review-priority and platform notices | User / Superadmin |
+| Trusted contacts | Manage up to five user-owned trusted contacts | User |
+| SOS workflow | Submit an internal safety/incident review request with optional, one-time GPS snapshot | User |
+| SOS queue | Review, update status and add notes | Superadmin |
+| Threat intelligence | Defensive registry for public IPv4/IPv6 and domain indicators, provenance, severity and status | Superadmin |
+| Global signal atlas | Plot consented SOS GPS snapshots and analyst-entered approximate IOC locations | Superadmin |
+| Audit trail | Review privileged actions and case / IOC changes | Superadmin |
+| Mobile access | Responsive PWA shell, home-screen installation and cached static interface | User |
+| Guided demo | Fictional user and Superadmin sandbox, session limited to 40 minutes | Public demo visitor |
+
+### What the Superadmin can handle
+
+The production Superadmin console is separate from the normal user workspace. It is intended to:
+- Review incoming case files and decide what needs further investigation.
+- Read the submitted claim and public source reference.
+- Record an evidence summary, source URLs and reviewer notes.
+- Choose a case outcome only when the required evidence is included.
+- Review SOS submissions and optional location snapshots.
+- Manage public network indicators, in-app notices and account overview.
+- Inspect the audit trail for privileged activity.
+
+There is no public Superadmin registration flow. The live Superadmin role must be assigned through the one-time bootstrap procedure documented in the repository.
+
+### Cyber / IP location policy
+
+The global map is an incident-context view—not a people-tracking system.
+
+- Only user-consented, one-time GPS snapshots associated with an SOS can be shown as user locations.
+- IP geolocation is approximate and describes a network edge/region; it can be inaccurate because of VPNs, proxies, carrier NAT and shared cloud egress.
+- IOC coordinates are entered by an authorised Superadmin with a source reference.
+- DRISHTI does not silently capture visitor IPs, identify a person from an IP address or show someone's live movement.
+- Private, local and reserved IP ranges are rejected by the IOC API.
+
+## 6. The 40-minute public demo
+
+<badge color="success">Available as a browser-only product tour</badge>
+
+[**Open the guided DRISHTI demo**](https://dristhi-five.vercel.app/frontend/demo.html)
+
+Two fictional demo roles are available:
+
+| Demo role | Demo ID | Password |
+| --- | --- | --- |
+| Mobile / User | `demo.user@drishti.in` | `DRISHTI-USER-40` |
+| Superadmin tour | `demo.superadmin@drishti.in` | `DRISHTI-ADMIN-40` |
+
+The demo:
+- Starts a 40-minute countdown when a role signs in.
+- Provides a mobile-user walkthrough and a separate Superadmin-tour experience.
+- Uses fictional sample messages, cases, status updates and map points.
+- Stores demo changes in the current browser tab's `sessionStorage`.
+- Clears the local demo session and sample data when the timer expires or the user exits.
+
+**Demo security boundary:** these credentials are intentionally public and only enter the isolated browser simulator. They cannot sign into production, access real user records or perform real Superadmin actions. The timer is client-side for a guided tour; it is not a production authentication/session control.
+
+## 7. Current analysis methodology and limitations
+
+The current production baseline is a **deterministic, explainable rule-based text analyser**. It is not a trained AI / machine-learning classifier and is not a web fact-checking service.
+
+Current signals include:
+- Urgency language.
+- Pressure to forward or redistribute.
+- Authority claims without a verifiable source in the submitted text.
+- Forward-chain markers.
+- Panic or threat wording.
+- Selected common URL shorteners.
+- Excessive capitalisation and repeated punctuation.
+
+The output is a review-priority score and matched signal explanations. It is **not**:
+- A probability that a claim is false.
+- A credibility score for a person or organisation.
+- A political viewpoint, ideology or sentiment classifier.
+- A malware scan or URL safety verdict.
+- A live social-media monitoring service.
+- An automated reporting, account suspension or takedown mechanism.
+
+The current baseline does not independently browse the web to check sources, authenticate official notices, inspect images/video/audio, recognise all deepfakes, attribute coordinated actors or identify people behind IP addresses. Urgent legitimate emergency communication can trigger a false positive; subtle and newly emerging misinformation can be missed.
+
+### Planned research (not represented as implemented)
+
+- Evaluate mBERT / XLM-RoBERTa on properly sourced Hindi, English and code-mixed datasets.
+- Source registry and fact-check publisher integrations with provenance.
+- OCR, image provenance and media-forensics research.
+- Official / approved platform API integrations for public content.
+- Privacy-preserving repetition/timing and graph analysis on lawful public metadata.
+- Safe URL expansion and external reputation integrations.
+
+## 8. Technology stack
 
 | Layer | Technology |
 | --- | --- |
-| Backend language | Python 3.11+ |
-| API framework | FastAPI |
-| API schema / docs | OpenAPI 3, Swagger UI, ReDoc |
-| Request validation | Pydantic |
-| Authentication | JWT bearer tokens (HS256) |
-| Password storage | Python scrypt |
-| Database | SQLite for the prototype |
+| Backend | Python 3.11+, FastAPI, Pydantic |
+| Authentication | JWT bearer tokens (HS256), scrypt password hashing |
+| Database | SQLite for local development; PostgreSQL when configured |
 | Frontend | HTML5, CSS3, Vanilla JavaScript |
-| Containerisation | Docker, Docker Compose |
+| API documentation | OpenAPI, Swagger UI, ReDoc |
+| PWA | Web app manifest, service worker, browser installation |
+| Deployment | Vercel |
 | Testing | pytest |
+| Containers | Docker, Docker Compose |
 
-The initial public repository contained only a starter README and no application source. This MVP therefore establishes a new, documented implementation baseline. No earlier language, model, training dataset or production architecture is being assumed.
+## 9. Architecture and API
 
-## 07 · Architecture
+Full diagrams, trust boundaries, data model, routes and threat model: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-~~~text
-┌──────────────────────────────┐
-│       Browser / Frontend     │
-│  Workspace · Report · History│
-└──────────────┬───────────────┘
-               │ HTTPS / JSON
-               ▼
-┌──────────────────────────────┐
-│        FastAPI Backend       │
-│  Auth · Analysis · History   │
-└───────┬──────────────┬───────┘
-        │              │
-        ▼              ▼
-┌──────────────┐  ┌────────────────┐
-│ scrypt + JWT │  │ Signal Engine  │
-│ Auth helpers │  │ Explainable    │
-└──────────────┘  │ baseline rules │
-                  └───────┬────────┘
-                          ▼
-                  ┌────────────────┐
-                  │ SQLite Storage │
-                  │ Users + reports│
-                  └────────────────┘
-~~~
+Important routes:
 
-### API route map
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| GET | `/health` | Health and storage status |
+| POST | `/api/v1/auth/register` | Create a user account |
+| POST | `/api/v1/auth/login` | User sign-in |
+| GET | `/api/v1/auth/me` | Read current account and role |
+| POST | `/api/v1/analyze` | Analyse submitted text |
+| GET / DELETE | `/api/v1/history` | Read or delete current user's history |
+| POST | `/api/v1/cases` | Create a case file |
+| GET | `/api/v1/cases/mine` | Read current user's case files |
+| GET / PATCH | `/api/v1/admin/cases` | Superadmin case review queue / evidence update |
+| GET / POST / PATCH | `/api/v1/admin/network-indicators` | Superadmin public IOC registry |
+| GET / POST / PATCH | `/api/v1/admin/sos` | Superadmin SOS review workflow |
 
-| Method | Endpoint | Access | Purpose |
-| --- | --- | --- | --- |
-| GET | /health | Public | Health check |
-| POST | /api/v1/auth/register | Public | Create an account |
-| POST | /api/v1/auth/login | Public | Obtain a bearer token |
-| GET | /api/v1/auth/me | Bearer token | Read current user |
-| POST | /api/v1/analyze | Optional bearer token | Analyse submitted text; save only for signed-in users who request history |
-| GET | /api/v1/history | Bearer token | List the current user's saved analyses |
-| DELETE | /api/v1/history/{analysis_id} | Bearer token | Delete one of the current user's reports |
+Live API documentation: [Swagger UI](https://dristhi-five.vercel.app/docs).
 
-### Interactive API documentation
+## 10. Live deployment and storage status
 
-After starting the backend:
-- Swagger UI: http://127.0.0.1:8000/docs
-- ReDoc: http://127.0.0.1:8000/redoc
-- OpenAPI JSON: http://127.0.0.1:8000/openapi.json
+The website and static frontend are deployed on Vercel. **The connected Vercel project currently has no `DATABASE_URL` configured.**
 
-## 08 · Run locally
+This means the production health endpoint reports storage as unconfigured. Until persistent PostgreSQL is connected:
+- Anonymous analysis can run where the API is available.
+- User registration and login cannot be used in production.
+- Analysis history, real case files, alerts, trusted contacts and SOS records cannot persist.
+- The real Superadmin console cannot operate on production records.
+- The public 40-minute demo remains available because it is a separate local browser simulator.
 
-### Prerequisites
+The case-file API and interfaces are now in the repository, but durable production use is blocked by database configuration. See [Supabase Free & first-admin setup](docs/SUPABASE-FREE-SETUP.md). Do not put database credentials in this README or GitHub.
 
-- Python 3.11 or newer.
-- A modern browser.
-- Git.
-- Optional: Docker and Docker Compose.
+## 11. Run locally
 
-### 1. Clone the repository
+**Requirements:** Python 3.11+, Git and a modern browser. Docker is optional.
+
+### Clone
 
 ~~~bash
 git clone https://github.com/Adarsh-Singh-Chauhan/dristhi.git
 cd dristhi
 ~~~
 
-### 2. Configure the backend
-
-~~~bash
-python -m venv .venv
-
-# Windows PowerShell
-.venv\Scripts\Activate.ps1
-
-# macOS / Linux
-# source .venv/bin/activate
-
-pip install -r backend/requirements.txt
-~~~
-
-Set a strong, private JWT secret before starting the backend.
-
-Windows PowerShell:
+### Start the API (Windows PowerShell)
 
 ~~~powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r backend/requirements.txt
 $env:JWT_SECRET_KEY = "replace-with-a-long-random-secret"
 $env:DATABASE_PATH = "data/drishti.db"
 uvicorn app.main:app --app-dir backend --reload
 ~~~
 
-macOS / Linux:
-
-~~~bash
-export JWT_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(48))')"
-export DATABASE_PATH="data/drishti.db"
-uvicorn app.main:app --app-dir backend --reload
-~~~
-
-Backend runs at http://127.0.0.1:8000.
-
-### 3. Start the frontend
+### Start the frontend
 
 In a second terminal:
 
-~~~bash
+~~~powershell
 cd frontend
 python -m http.server 5500
 ~~~
 
-Open http://127.0.0.1:5500.
+Open `http://127.0.0.1:5500`. The local frontend calls the API at `http://127.0.0.1:8000` by default.
 
-The frontend calls the local API at http://127.0.0.1:8000 by default. For another deployment, configure window.DRISHTI_API_BASE before app.js loads.
+API docs: `http://127.0.0.1:8000/docs`  
+Health: `http://127.0.0.1:8000/health`
 
-### 4. Run tests
+### Tests
 
 ~~~bash
 pip install -r backend/requirements.txt
 pytest backend/tests -q
 ~~~
 
-### 5. Run with Docker Compose
+### Docker
 
-Copy .env.example to .env, set a strong JWT_SECRET_KEY, then run:
+Copy `.env.example` to `.env`, configure a private `JWT_SECRET_KEY`, then run:
 
 ~~~bash
 docker compose up --build
 ~~~
 
-The API will be available at http://127.0.0.1:8000.
+Never commit `.env`, database files, access tokens, password hashes or real case content.
 
-## 09 · Verification methodology
+## 12. First Superadmin setup
 
-The current engine is a **deterministic rule-based baseline**, not a trained machine-learning classifier.
+1. Configure a persistent PostgreSQL database using [docs/SUPABASE-FREE-SETUP.md](docs/SUPABASE-FREE-SETUP.md).
+2. Add `DATABASE_URL` and a high-entropy `JWT_SECRET_KEY` as private Vercel environment variables.
+3. Deploy and confirm `/health` reports PostgreSQL storage.
+4. Register the account that should become the real Superadmin.
+5. Follow the one-time local bootstrap steps in `scripts/promote_first_admin.py`.
+6. Sign in at [Superadmin Control Room](https://dristhi-five.vercel.app/frontend/admin.html).
 
-Its job is limited to flagging selected textual patterns. It does not:
-- Search the internet to verify the content.
-- Confirm whether a government, public body or named person issued a statement.
-- Inspect a photo, video, voice note or document attachment.
-- Detect coordinated actors or infer who created a campaign.
-- Verify the origin, destination or safety of a shortened URL.
-- Determine intent, authenticity or factual truth.
+Never publish the production Superadmin email/password in README, demo, source code, issue comments or screenshots.
 
-### Recommended human verification checklist
+## 13. Responsible use & security
 
-- Find the earliest available publication of the claim.
-- Locate the primary document, statement or data being referenced.
-- Check the date, location and full context.
-- Compare multiple independent, credible sources.
-- Inspect whether a photo or video is old, cropped or presented out of context.
-- Open links cautiously; do not enter credentials on unfamiliar pages.
-- Record the evidence and uncertainty before reaching a conclusion.
+- Keep analysis viewpoint-neutral: criticism, political debate, journalism, satire and dissent must not be treated as false solely because of their position or tone.
+- Never use a keyword match or score as proof.
+- Preserve primary-source links, dates, context and uncertainty.
+- Require human review and evidence before a case receives a verified conclusion.
+- Do not collect private messages without consent and a valid legal basis.
+- Do not infer a person's identity or precise location from an IP address.
+- Do not automate public accusations, takedowns, emergency dispatch or law-enforcement referrals.
+- Use HTTPS, private secrets, restricted CORS, database backups and access logging before public operational use.
+- DRISHTI SOS is an internal review request; it does not dispatch emergency services.
 
-## 10 · Problems, risks and global challenges
+This project is an engineering prototype and has not undergone an independent security audit. See [SECURITY.md](SECURITY.md) for responsible reporting guidance.
 
-DRISHTI is designed around challenges that appear across information ecosystems worldwide. These are problem areas for research and future engineering—not claims that the current MVP already solves them.
+## 14. Contributing
 
-| Challenge | Why it matters | Future direction |
-| --- | --- | --- |
-| Multilingual misinformation | Claims may be translated, transliterated or altered across languages | Language-aware models and region-specific evaluation |
-| Crisis-time rumours | Urgent claims can spread during disasters, conflict or public emergencies | Crisis-context workflows and trusted primary-source references |
-| Deepfakes and synthetic media | Audio, images and video can be manipulated | Media forensics, provenance signals and specialist review |
-| Context collapse | Old content may be reused with a new date or location | Reverse-image search integrations and temporal context |
-| Impersonation and spoofed notices | Messages may imitate official institutions or brands | Domain, certificate and source-provenance checks |
-| Coordinated amplification | Repeated posts may create a false sense of consensus | Privacy-preserving network analysis with strong safeguards |
-| Shortened and deceptive URLs | Link previews may hide the destination | Safe URL expansion and reputation checks in an isolated service |
-| Limited fact-checking capacity | Human reviewers cannot manually inspect every forward | Explainable triage and reviewer queues |
-| Algorithmic amplification | Engagement-driven distribution can increase reach | Research integrations using public, policy-compliant data |
-| Privacy and evidence handling | Messages may contain personal or sensitive information | Data minimisation, retention controls and privacy-by-design |
-| False positives | Legitimate urgent alerts or political speech may be flagged | Calibration, appeal and human-review mechanisms |
-| Uneven access to trusted sources | Reliable information may be difficult to find in some regions | Local source registries and transparent source quality criteria |
+Contributions are welcome in accessibility, security review, multilingual evaluation, source-verification workflows, documentation and responsible AI research.
 
-## 11 · Responsible use, fairness and safeguards
+Any new model, data collection or platform integration should document provenance, licensing, consent, limitations, false positives, false negatives and human-review requirements.
 
-This project must remain viewpoint-neutral and evidence-led.
-
-- Do not classify content as harmful merely because it criticises India, a government, a political party, a public official, a company or an institution.
-- Do not rank people, communities, journalists or political groups by ideology.
-- Do not generate a “traitor”, “anti-national” or similar identity label.
-- Do not automate reporting, account suspension, takedown or law-enforcement referral.
-- Do not treat keyword matches, sentiment or virality as proof of falsity.
-- Show why a signal was raised and what evidence is still missing.
-- Include human review, appeal and correction paths before any consequential use.
-- Minimise personal data and avoid collecting private group messages without consent and a valid legal basis.
-
-The system should support readers and reviewers—not decide what opinions people may express.
-
-## 12 · Security and privacy notes
-
-The MVP includes password hashing and signed, expiring bearer tokens. It is a development foundation, not a completed production security assessment.
-
-Before public deployment:
-- Use HTTPS everywhere.
-- Set a high-entropy JWT_SECRET_KEY and keep it outside source control.
-- Restrict CORS_ORIGINS to the exact frontend domains.
-- Use managed secrets and a managed database with backups.
-- Add rate limiting and abuse monitoring at the gateway / reverse proxy.
-- Add email verification, password reset and account recovery.
-- Evaluate secure, HttpOnly cookie-based sessions or a backend-for-frontend for production.
-- Add formal retention, export and account-deletion policies.
-- Review database access, audit events, dependency updates and incident response.
-- Conduct independent security and privacy testing.
-
-Never commit real user messages, access tokens, passwords, API keys or production database files.
-
-See SECURITY.md for reporting and deployment guidance.
-
-## 13 · Known limitations
-
-- Rule-based phrase matching can miss subtle or newly emerging narratives.
-- The baseline vocabulary is limited and does not offer comprehensive language coverage.
-- Urgent language may be appropriate in legitimate emergency communication.
-- A shortened URL is not automatically malicious.
-- The engine does not fetch sources or provide independent fact-checking.
-- No social-platform APIs are connected in this MVP.
-- No image, video, audio, OCR or deepfake analysis is implemented.
-- No coordinated-campaign attribution or actor identification is implemented.
-- SQLite is suitable for a small prototype, not a high-availability global service.
-- Authentication does not yet include email verification, refresh tokens, recovery or enterprise SSO.
-- The browser's demo fallback is illustrative and must not be confused with the backend result.
-
-## 14 · Future roadmap
-
-### Phase 1 — MVP foundation
-- [x] FastAPI and OpenAPI / Swagger documentation.
-- [x] User registration and login.
-- [x] Password hashing and bearer authentication.
-- [x] Explainable baseline text-signal analysis.
-- [x] Saved history and per-record deletion.
-- [x] Responsive browser interface.
-- [x] Prototype scope and responsible-use documentation.
-
-### Phase 2 — Evidence and source verification
-- [ ] Source registry with transparent inclusion criteria.
-- [ ] Citation and evidence attachment workflow.
-- [ ] Safe URL expansion and domain reputation integration.
-- [ ] Publication-date and context comparison.
-- [ ] Reviewer notes, correction and appeal workflow.
-
-### Phase 3 — Multilingual and media research
-- [ ] Evaluate multilingual transformer baselines such as mBERT and XLM-RoBERTa on documented, permissioned Hindi/English/Hinglish datasets.
-- [ ] Translation-aware and code-mixed text analysis with per-language false-positive measurement.
-- [ ] OCR for screenshots and public notices.
-- [ ] Image provenance and reverse-search integrations.
-- [ ] Audio / video forensics research with confidence and limitations clearly disclosed.
-- [ ] Optional contextual Q&A assistant (for example, a Gemini integration) with explicit API-key configuration, evidence citations and clear uncertainty.
-
-
-### Phase 4 — Campaign-pattern research
-- [ ] Public-source collection through official, permitted platform APIs or approved datasets; no private-message scraping.
-- [ ] Repetition and timing pattern analysis.
-- [ ] Graph-based coordination research (for example, NetworkX) on public, aggregated interaction metadata—not person identity or private account surveillance.
-- [ ] Coordinated amplification research with human oversight.
-- [ ] False-positive measurement and independent evaluation.
-- [ ] Transparent source and methodology governance.
-
-
-### Phase 5 — Responsible scale
-- [ ] PostgreSQL and managed infrastructure.
-- [ ] Queue-based processing and observability.
-- [ ] Regional language and accessibility improvements.
-- [ ] Security audits, privacy impact assessment and red-team testing.
-- [ ] Partnerships with independent researchers and fact-checking organisations.
-
-Roadmap items are proposals; they are not implemented features.
-
-## 15 · Contributing
-
-Contributions are welcome in software engineering, security review, accessibility, language evaluation, documentation and responsible AI research.
-
-Before proposing a classifier or dataset:
-1. Document the intended use and limits.
-2. Check data provenance, consent and licensing.
-3. Measure false positives and false negatives across viewpoints and languages.
-4. Avoid identity or ideology labels.
-5. Include reproducible tests and human-review guidance.
-
-## 16 · Author
+## 15. Contact
 
 **Adarsh Singh Chauhan**
 
 - GitHub: [Adarsh-Singh-Chauhan](https://github.com/Adarsh-Singh-Chauhan)
-- LinkedIn: [Adarsh Singh Chauhan](https://www.linkedin.com/in/adarsh-singh-5189b9283/)
+- LinkedIn: [Connect on LinkedIn](https://www.linkedin.com/in/adarsh-singh-5189b9283/)
+- Portfolio: [Engineering Portfolio](https://adarsh-engineering-portfolio-rust.vercel.app/)
+- Email: [Request a DRISHTI walkthrough](mailto:adarshsinghchauhan904@gmail.com?subject=DRISHTI%20Product%20Walkthrough)
 
 ---
 
@@ -479,8 +343,6 @@ Before proposing a classifier or dataset:
 
 **DRISHTI — A better pause before the next share.**
 
-<sub>Built as a cybersecurity and information-integrity prototype. Verify independently. Think critically. Share responsibly.</sub>
-
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:12A89D,50:123B55,100:0B1220&height=110&section=footer" width="100%" alt="DRISHTI footer" />
+<sub>Built to support evidence, clarity and human judgement. Verify independently. Share responsibly.</sub>
 
 </div>
