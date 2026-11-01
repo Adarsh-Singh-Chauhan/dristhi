@@ -88,6 +88,25 @@ def initialize_operations_schema(connection: Any, is_postgres: bool) -> None:
             updated_at TEXT NOT NULL
         )""",
         "CREATE INDEX IF NOT EXISTS idx_network_indicators_created ON network_indicators(created_at DESC)",
+        """CREATE TABLE IF NOT EXISTS case_files (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            claim_text TEXT NOT NULL,
+            source_platform TEXT NOT NULL DEFAULT 'other',
+            source_url TEXT,
+            analysis_id TEXT,
+            status TEXT NOT NULL DEFAULT 'received',
+            evidence_summary TEXT,
+            evidence_sources_json TEXT NOT NULL DEFAULT '[]',
+            reviewer_notes TEXT,
+            reviewed_by TEXT REFERENCES users(id) ON DELETE SET NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_case_files_user_created ON case_files(user_id, created_at DESC)",
+        "CREATE INDEX IF NOT EXISTS idx_case_files_status_created ON case_files(status, created_at DESC)",
     ]
     for statement in statements:
         connection.execute(statement)
@@ -147,6 +166,22 @@ class NetworkIndicatorReview(BaseModel):
 class SOSReview(BaseModel):
     status: Literal["open", "under_review", "resolved", "dismissed"]
     review_notes: str = Field(default="", max_length=2000)
+
+
+class CaseFileCreate(BaseModel):
+    category: Literal["misinformation", "phishing", "impersonation", "deepfake", "cyber_attack", "other"] = "other"
+    title: str = Field(min_length=8, max_length=140)
+    claim_text: str = Field(min_length=20, max_length=8000)
+    source_platform: Literal["whatsapp", "instagram", "telegram", "facebook", "x", "web", "other"] = "other"
+    source_url: str | None = Field(default=None, max_length=2048)
+    analysis_id: str | None = Field(default=None, max_length=80)
+
+
+class CaseFileReview(BaseModel):
+    status: Literal["under_review", "verified_false", "supported_by_sources", "misleading_context", "insufficient_evidence", "closed"]
+    evidence_summary: str = Field(default="", max_length=3000)
+    evidence_sources: list[str] = Field(default_factory=list, max_length=8)
+    reviewer_notes: str = Field(default="", max_length=3000)
 
 
 class AdminAlertCreate(BaseModel):
@@ -309,6 +344,104 @@ def build_operations_router(
             items.append(item)
         return items
 
+    @router.post("/api/v1/cases", status_code=201, tags=["Case files"])
+    def create_case_file(payload: CaseFileCreate, user: Any = Depends(require_user)) -> dict:
+        source_url = payload.source_url.strip() if payload.source_url else None
+        if source_url and not source_url.startswith(("https://", "http://")):
+            raise HTTPException(status_code=422, detail="Source URL must use HTTP or HTTPS.")
+        case_id = str(uuid.uuid4())
+        now = utc_now()
+        with database() as connection:
+            connection.execute(
+                """INSERT INTO case_files(
+                    id, user_id, category, title, claim_text, source_platform, source_url,
+                    analysis_id, status, evidence_summary, evidence_sources_json,
+                    reviewer_notes, reviewed_by, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'received', NULL, '[]', NULL, NULL, ?, ?)""",
+                (
+                    case_id, user["id"], payload.category, payload.title.strip(),
+                    payload.claim_text.strip(), payload.source_platform, source_url,
+                    payload.analysis_id, now, now,
+                ),
+            )
+        return {
+            "id": case_id, "status": "received",
+            "message": "Case file created and queued for human review. This is not a verdict.",
+            "created_at": now,
+        }
+
+    @router.get("/api/v1/cases/mine", tags=["Case files"])
+    def list_my_case_files(user: Any = Depends(require_user)) -> list[dict]:
+        with database() as connection:
+            rows = connection.execute(
+                """SELECT id, category, title, claim_text, source_platform, source_url,
+                          analysis_id, status, evidence_summary, evidence_sources_json,
+                          reviewer_notes, created_at, updated_at
+                   FROM case_files WHERE user_id = ? ORDER BY created_at DESC LIMIT 100""",
+                (user["id"],),
+            ).fetchall()
+        items = []
+        for row in rows:
+            item = _plain(row)
+            item["evidence_sources"] = json.loads(item.pop("evidence_sources_json") or "[]")
+            items.append(item)
+        return items
+
+    @router.get("/api/v1/admin/cases", tags=["Case files", "Administration"])
+    def admin_list_case_files(user: Any = Depends(require_admin)) -> list[dict]:
+        with database() as connection:
+            rows = connection.execute(
+                """SELECT c.id, c.category, c.title, c.claim_text, c.source_platform,
+                          c.source_url, c.analysis_id, c.status, c.evidence_summary,
+                          c.evidence_sources_json, c.reviewer_notes, c.created_at,
+                          c.updated_at, u.email AS reporter_email
+                   FROM case_files c JOIN users u ON u.id = c.user_id
+                   ORDER BY c.created_at DESC LIMIT 300"""
+            ).fetchall()
+        items = []
+        for row in rows:
+            item = _plain(row)
+            item["evidence_sources"] = json.loads(item.pop("evidence_sources_json") or "[]")
+            items.append(item)
+        return items
+
+    @router.patch("/api/v1/admin/cases/{case_id}", tags=["Case files", "Administration"])
+    def admin_review_case_file(case_id: str, payload: CaseFileReview, user: Any = Depends(require_admin)) -> dict:
+        sources = list(dict.fromkeys(source.strip() for source in payload.evidence_sources if source.strip()))
+        if len(sources) > 8:
+            raise HTTPException(status_code=422, detail="Add no more than eight evidence source URLs.")
+        for source in sources:
+            if not source.startswith(("https://", "http://")):
+                raise HTTPException(status_code=422, detail="Evidence sources must be HTTP or HTTPS URLs.")
+        verdict_states = {"verified_false", "supported_by_sources", "misleading_context"}
+        if payload.status in verdict_states and (not sources or not payload.evidence_summary.strip()):
+            raise HTTPException(status_code=422, detail="A reviewed conclusion needs an evidence summary and at least one source URL.")
+        now = utc_now()
+        with database() as connection:
+            cursor = connection.execute(
+                """UPDATE case_files
+                   SET status = ?, evidence_summary = ?, evidence_sources_json = ?,
+                       reviewer_notes = ?, reviewed_by = ?, updated_at = ?
+                   WHERE id = ?""",
+                (
+                    payload.status, payload.evidence_summary.strip() or None,
+                    json.dumps(sources), payload.reviewer_notes.strip() or None,
+                    user["id"], now, case_id,
+                ),
+            )
+            if cursor.rowcount == 0:
+                raise HTTPException(status_code=404, detail="Case file not found.")
+            connection.execute(
+                """INSERT INTO admin_audit_log
+                   (id, actor_user_id, action, entity_type, entity_id, metadata_json, created_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    str(uuid.uuid4()), user["id"], "review_case_file", "case_file",
+                    case_id, json.dumps({"status": payload.status, "evidence_sources": len(sources)}), now,
+                ),
+            )
+        return {"id": case_id, "status": payload.status, "updated_at": now}
+
     @router.get("/api/v1/admin/overview", tags=["Administration"])
     def admin_overview(user: Any = Depends(require_admin)) -> dict:
         with database() as connection:
@@ -319,7 +452,9 @@ def build_operations_router(
             total_sos = connection.execute("SELECT COUNT(*) AS total FROM sos_reports").fetchone()["total"]
             alerts = connection.execute("SELECT COUNT(*) AS total FROM alerts").fetchone()["total"]
             network_indicators = connection.execute("SELECT COUNT(*) AS total FROM network_indicators").fetchone()["total"]
-        return {"users": users, "open_sos": open_sos, "total_sos": total_sos, "alerts": alerts, "network_indicators": network_indicators}
+            total_cases = connection.execute("SELECT COUNT(*) AS total FROM case_files").fetchone()["total"]
+            open_cases = connection.execute("SELECT COUNT(*) AS total FROM case_files WHERE status IN ('received', 'under_review')").fetchone()["total"]
+        return {"users": users, "open_sos": open_sos, "total_sos": total_sos, "alerts": alerts, "network_indicators": network_indicators, "total_cases": total_cases, "open_cases": open_cases}
 
     @router.get("/api/v1/admin/sos", tags=["Administration"])
     def admin_list_sos(user: Any = Depends(require_admin)) -> list[dict]:
