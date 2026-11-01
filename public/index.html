@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="DRISHTI — an explainable information-integrity and cybersecurity signal analysis prototype.">
+  <title>DRISHTI — Information Integrity Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="DRISHTI home">
+        <span class="brand-mark"><i></i><i></i><i></i></span>
+        <span><b>DRISHTI</b><small>INFORMATION INTEGRITY</small></span>
+      </a>
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <button class="nav-link active" data-view="analysis"><span class="nav-icon">⌂</span> Overview</button>
+        <button class="nav-link" data-view="history"><span class="nav-icon">◷</span> Analysis history</button>
+        <button class="nav-link" data-view="method"><span class="nav-icon">⌘</span> Methodology</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="privacy-card">
+          <span class="privacy-icon">✳</span>
+          <b>Human judgement first</b>
+          <p>Signals guide review. They never replace evidence or independent thinking.</p>
+        </div>
+        <a class="docs-link" href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">API documentation <span>↗</span></a>
+        <div class="sidebar-foot">DRISHTI <span>PROTOTYPE · v0.1</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content" id="top">
+      <header class="topbar">
+        <div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="crumb-title">Overview</strong></div>
+        <div class="top-actions">
+          <span id="api-status" class="api-status"><i></i> Checking API</span>
+          <button id="auth-open" class="button button-outline">Sign in <span>↗</span></button>
+          <div id="user-chip" class="user-chip hidden"><span>●</span><b id="user-email">Signed in</b><button id="sign-out" aria-label="Sign out">×</button></div>
+        </div>
+      </header>
+
+      <section class="view active" id="view-analysis">
+        <div class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="eyebrow-dot"></span> A CYBERSECURITY-LED VERIFICATION WORKSPACE</div>
+            <h1>Pause.<br><em>Verify.</em> Then share.</h1>
+            <p>Not every forward deserves your trust. Examine the signals, trace the source and make a more informed decision before information travels further.</p>
+            <div class="hero-pills"><span>Explainable signals</span><span>Human-led verification</span><span>Privacy-aware design</span></div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+            <div class="core-eye"><span class="eye-ring"></span><span class="eye-center"></span></div>
+            <div class="float-tag tag-one">SOURCE <b>?</b></div>
+            <div class="float-tag tag-two">CONTEXT <b>↗</b></div>
+            <div class="float-tag tag-three">SIGNAL <b>✳</b></div>
+            <div class="art-caption">LOOK CLOSER<br><b>THINK CLEARER</b></div>
+          </div>
+        </div>
+
+        <div class="notice"><span>ⓘ</span><p><b>Important:</b> DRISHTI identifies surface-level review signals. It does not decide whether content is true or false, and it does not classify political viewpoints.</p></div>
+
+        <div class="section-heading">
+          <div><span class="section-kicker">CONTENT REVIEW</span><h2>Inspect a message</h2><p>Paste text from a public post or a message you are authorised to review.</p></div>
+          <button id="sample-button" class="text-button">Load sample message <span>↗</span></button>
+        </div>
+
+        <div class="analysis-grid">
+          <section class="panel input-panel">
+            <div class="panel-head"><div><span class="step-number">01</span><b>Message details</b></div><span class="micro-label">MANUAL SUBMISSION</span></div>
+            <form id="analysis-form">
+              <label for="content">Message or claim <span class="required">*</span></label>
+              <textarea id="content" minlength="20" maxlength="10000" required placeholder="Paste the message or public claim here. Keep the original wording where possible..."></textarea>
+              <div class="field-meta"><span>Do not include private information or credentials.</span><span id="char-count">0 / 10,000</span></div>
+              <div class="form-row">
+                <div class="field-group"><label for="platform">Where did you see it?</label><select id="platform"><option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option><option value="telegram">Telegram</option><option value="facebook">Facebook</option><option value="x">X / Twitter</option><option value="web">Website</option><option value="other" selected>Other / Unknown</option></select></div>
+                <div class="field-group"><label for="source-url">Original source URL <span class="optional">OPTIONAL</span></label><input id="source-url" type="url" placeholder="https://example.com/source"></div>
+              </div>
+              <label class="check-row"><input id="save-history" type="checkbox" checked><span>Save a short report to my history when signed in</span></label>
+              <button class="button button-primary analyze-button" type="submit"><span>Analyse message</span><b>→</b></button>
+              <p class="form-foot">Your full message is not stored by the API. A short excerpt and signal summary are saved only when you are signed in and history saving is enabled.</p>
+            </form>
+          </section>
+
+          <section class="panel result-panel" aria-live="polite">
+            <div class="panel-head"><div><span class="step-number">02</span><b>Signal report</b></div><span class="micro-label">EXPLAINABLE OUTPUT</span></div>
+            <div id="empty-report" class="empty-report">
+              <div class="empty-graphic"><span>✳</span><i></i><b></b></div>
+              <h3>Your review starts here.</h3>
+              <p>Submit a message to see which surface-level patterns may need closer attention.</p>
+              <div class="empty-points"><span>01 &nbsp; Inspect language</span><span>02 &nbsp; Understand signals</span><span>03 &nbsp; Verify the source</span></div>
+            </div>
+            <div id="report" class="report hidden">
+              <div class="score-row">
+                <div class="score-gauge" id="score-gauge"><div><strong id="score-value">0</strong><small>/ 100</small></div></div>
+                <div class="score-copy"><span class="micro-label">REVIEW PRIORITY</span><h3 id="priority-label">Needs review</h3><p id="result-summary"></p></div>
+              </div>
+              <div class="report-divider"></div>
+              <div class="report-section-title"><b>Detected indicators</b><span id="indicator-count">0 signals</span></div>
+              <div id="indicator-list" class="indicator-list"></div>
+              <div class="report-divider"></div>
+              <div class="report-section-title"><b>What to verify next</b><span>CHECKLIST</span></div>
+              <ul id="check-list" class="check-list"></ul>
+              <div class="report-disclaimer" id="report-disclaimer"></div>
+              <div class="report-source" id="report-source"></div>
+            </div>
+          </section>
+        </div>
+        <div class="bottom-note"><span>✳</span><div><b>A signal is a starting point, not a verdict.</b><p>Always seek primary evidence, compare independent sources and retain room for uncertainty.</p></div></div>
+      </section>
+
+      <section class="view" id="view-history">
+        <div class="page-intro"><span class="section-kicker">YOUR WORKSPACE</span><h1>Analysis <em>history.</em></h1><p>Saved reports belong to your account. Sign in to review or remove them.</p></div>
+        <div class="panel history-panel">
+          <div class="panel-head"><div><span class="step-number">03</span><b>Saved reports</b></div><button id="refresh-history" class="text-button">Refresh ↻</button></div>
+          <div id="history-content" class="history-content"><div class="history-empty"><span>◷</span><b>No saved reports loaded</b><p>Sign in and refresh to view your analysis history.</p></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-method">
+        <div class="page-intro"><span class="section-kicker">TRANSPARENCY BY DESIGN</span><h1>Understand the <em>signals.</em></h1><p>DRISHTI's current baseline is intentionally simple and explainable. Learn what it can—and cannot—tell you.</p></div>
+        <div class="method-grid">
+          <article class="panel method-card"><span class="method-icon">↗</span><h3>Urgency & sharing pressure</h3><p>Looks for language that pressures readers to act immediately or forward a message widely.</p><small>Surface-level language pattern</small></article>
+          <article class="panel method-card"><span class="method-icon">⌁</span><h3>Authority & forwarding claims</h3><p>Highlights authority references without an in-text source and markers that suggest the original context may be missing.</p><small>Source context is not verified</small></article>
+          <article class="panel method-card"><span class="method-icon">!</span><h3>Panic & formatting signals</h3><p>Surfaces alarm-oriented wording, unusually high capitalisation and repeated emphatic punctuation.</p><small>Not evidence of falsity</small></article>
+          <article class="panel method-card"><span class="method-icon">◎</span><h3>Link review</h3><p>Recognises selected common URL shorteners so readers know to inspect the destination safely.</p><small>No malware scan is performed</small></article>
+        </div>
+        <div class="panel method-warning"><span>ⓘ</span><div><b>What the score means</b><p>The score is a triage aid based on matched rules. It is not a probability, credibility rating, fact-check result or judgement about a person, party or ideology. New models must be evaluated for false positives and bias before use.</p></div></div>
+        <div class="method-flow"><span>SUBMIT</span><b>→</b><span>INSPECT</span><b>→</b><span>EXPLAIN</span><b>→</b><span>VERIFY</span><b>→</b><span>DECIDE</span></div>
+      </section>
+
+      <footer class="footer"><span>© 2026 DRISHTI · An information-integrity prototype by Adarsh Singh Chauhan</span><span><a href="https://github.com/Adarsh-Singh-Chauhan/dristhi" target="_blank" rel="noreferrer">GitHub ↗</a><a href="http://127.0.0.1:8000/docs" target="_blank" rel="noreferrer">API Docs ↗</a></span></footer>
+    </main>
+  </div>
+
+  <dialog id="auth-dialog" class="auth-dialog">
+    <form id="auth-form" method="dialog">
+      <button type="button" id="auth-close" class="dialog-close" aria-label="Close">×</button>
+      <span class="section-kicker">YOUR DRISHTI ACCOUNT</span>
+      <h2 id="auth-title">Welcome <em>back.</em></h2>
+      <p id="auth-description">Sign in to save your analysis history.</p>
+      <label for="auth-email">Email address</label><input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com">
+      <label for="auth-password">Password</label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
+      <button id="auth-submit" class="button button-primary" type="submit">Sign in →</button>
+      <p class="auth-switch"><span id="auth-switch-label">New to DRISHTI?</span> <button type="button" id="auth-mode-toggle">Create an account</button></p>
+      <p id="auth-message" class="auth-message" role="status"></p>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/config.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
