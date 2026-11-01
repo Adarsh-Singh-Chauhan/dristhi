@@ -46,13 +46,16 @@ app = FastAPI(
         {"name": "Authentication", "description": "Account creation and bearer-token login."},
         {"name": "Analysis", "description": "Transparent review-priority signal analysis."},
         {"name": "History", "description": "Private saved analysis records."},
+        {"name": "Alerts", "description": "In-app review-priority notifications."},
+        {"name": "SOS", "description": "User-submitted urgent review requests."},
+        {"name": "Administration", "description": "Role-restricted moderation and alert tools."},
     ],
 )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=False,
-    allow_methods=["GET", "POST", "DELETE"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type"],
 )
 bearer_scheme = HTTPBearer(auto_error=False)
