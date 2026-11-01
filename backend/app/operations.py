@@ -117,7 +117,7 @@ def build_operations_router(
     def list_alerts(user: Any = Depends(require_user)) -> list[dict]:
         with database() as connection:
             rows = connection.execute(
-                """SELECT id, title, message, level, category, source_id, created_at, read_at
+                """SELECT id, user_id, title, message, level, category, source_id, created_at, read_at
                    FROM alerts
                    WHERE user_id = ? OR user_id IS NULL
                    ORDER BY created_at DESC LIMIT 100""",
