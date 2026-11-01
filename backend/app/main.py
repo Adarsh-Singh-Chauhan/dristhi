@@ -344,7 +344,7 @@ def list_history(user: sqlite3.Row = Depends(require_user)) -> list[HistoryItem]
     ]
 
 
-@app.delete("/api/v1/history/{analysis_id}", status_code=status.HTTP_204_NO_CONTENT, tags=["History"])
+@app.delete("/api/v1/history/{analysis_id}", status_code=status.HTTP_204_NO_CONTENT, response_model=None, tags=["History"])
 def delete_history_item(analysis_id: str, user: sqlite3.Row = Depends(require_user)) -> None:
     with database() as connection:
         cursor = connection.execute(
