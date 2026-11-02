@@ -222,7 +222,7 @@ The optional `ml/` directory is a separate, offline research workflow. It does n
 - The training script reports aggregate and per-language validation/test results and writes a dataset-hash model card.
 - Local inference abstains below its confidence threshold. The output is only a triage signal.
 - `ml/graph_signals.py` provides descriptive NetworkX metrics over pseudonymised public interaction edges supplied by an analyst. It does not scrape social platforms, identify people, declare bots or attribute campaigns.
-- No trained weights, private message corpus, social-platform API credentials or Gemini configuration are supplied in the repository.
+- No trained weights, private message corpus, social-platform API credentials or Gemini configuration are supplied in the repository. A cited-source Gemini Q&A service is not currently integrated.
 
 Before a model is considered for production, require independent language-wise evaluation, calibration, false-positive/false-negative review, licence/consent validation, source provenance, model versioning and a rollback mechanism. Model output must never directly set a conclusive case status or trigger moderation.
 
