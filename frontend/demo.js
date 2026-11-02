@@ -545,7 +545,11 @@
     const left=panel(isAdmin?"Review queue":"Submitted by you",isAdmin?db.cases.length+" demo case files across sample reporters":getOwnCases().length+" case files in your sample account");
     const tools=el("div","form-grid");
     const search=el("input","");search.type="search";search.placeholder="Search case ID or title…";search.value=caseSearch;search.className="input";
-    search.addEventListener("input",()=>{\n      caseSearch=search.value;\n      const query=caseSearch.toLowerCase();\n      list.querySelectorAll(".case-list-item").forEach(item=>item.classList.toggle("hidden",!item.dataset.search.includes(query)));\n    });
+    search.addEventListener("input",()=>{
+      caseSearch=search.value;
+      const query=caseSearch.toLowerCase();
+      list.querySelectorAll(".case-list-item").forEach(item=>item.classList.toggle("hidden",!item.dataset.search.includes(query)));
+    });
     const filter=el("select","input");
     [["all","All statuses"],...allStatuses.map(s=>[s,statusLabels[s]])].forEach(([v,l])=>{const o=el("option","",l);o.value=v;if(v===caseFilter)o.selected=true;filter.append(o)});
     filter.addEventListener("change",()=>{caseFilter=filter.value;renderCaseWorkspace(root,isAdmin);});
