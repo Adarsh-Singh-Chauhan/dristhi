@@ -26,5 +26,37 @@
   ],
   "regions": [
     "bom1"
+  ],
+  "redirects": [
+    {
+      "source": "/frontend/demo.html",
+      "destination": "/demo.html",
+      "permanent": true
+    },
+    {
+      "source": "/frontend/",
+      "destination": "/app.html",
+      "permanent": true
+    },
+    {
+      "source": "/frontend/index.html",
+      "destination": "/app.html",
+      "permanent": true
+    },
+    {
+      "source": "/frontend/guide.html",
+      "destination": "/guide.html",
+      "permanent": true
+    },
+    {
+      "source": "/frontend/admin.html",
+      "destination": "/admin.html",
+      "permanent": true
+    },
+    {
+      "source": "/frontend/alerts.html",
+      "destination": "/alerts.html",
+      "permanent": true
+    }
   ]
 }
