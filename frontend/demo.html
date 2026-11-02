@@ -7,11 +7,11 @@
 <title>DRISHTI — Interactive Product Sandbox</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/demo.css?v=20261102">
+<link rel="stylesheet" href="/demo.css?v=20261102-ui">
 </head>
 <body>
 <section id="login-screen" class="login-screen">
-  <header class="login-top"><a class="brand" href="../"><span class="brand-symbol">◉</span><span>DRISHTI<small>PAUSE · VERIFY · UNDERSTAND</small></span></a><a class="back-link" href="../">← Back to product site</a></header>
+  <header class="login-top"><a class="brand" href="/"><span class="brand-symbol">◉</span><span>DRISHTI<small>PAUSE · VERIFY · UNDERSTAND</small></span></a><a class="back-link" href="/app.html">← Back to product site</a></header>
   <main class="login-wrap">
     <section class="login-story">
       <span class="eyebrow"><i class="live-dot"></i> INTERACTIVE PRODUCT SANDBOX</span>
@@ -31,12 +31,12 @@
       <p class="login-foot">Public demo credentials are intentionally visible. Never use them for a production account. The 40-minute timer is a client-side product-tour limit, not production authentication.</p>
     </section>
   </main>
-  <footer class="login-footer"><span>DRISHTI · PRODUCT WALKTHROUGH</span><span><a href="guide.html">User guide</a> · <a href="mailto:adarshsinghchauhan904@gmail.com?subject=DRISHTI%20Product%20Walkthrough">Request a live walkthrough ↗</a></span></footer>
+  <footer class="login-footer"><span>DRISHTI · PRODUCT WALKTHROUGH</span><span><a href="/guide.html">User guide</a> · <a href="mailto:adarshsinghchauhan904@gmail.com?subject=DRISHTI%20Product%20Walkthrough">Request a live walkthrough ↗</a></span></footer>
 </section>
 
 <section id="demo-app" class="demo-app hidden">
   <aside class="sidebar">
-    <a class="app-brand" href="../"><span class="brand-symbol">◉</span><span>DRISHTI<small>DEMO WORKSPACE</small></span></a>
+    <a class="app-brand" href="/app.html"><span class="brand-symbol">◉</span><span>DRISHTI<small>DEMO WORKSPACE</small></span></a>
     <div class="workspace-switch"><span class="switch-label">CURRENT WORKSPACE</span><div><i id="role-dot"></i><b id="workspace-role">USER WORKSPACE</b></div><small id="workspace-email">demo.user@drishti.in</small></div>
     <nav id="demo-nav" class="sidebar-nav" aria-label="Demo sections"></nav>
     <div class="sidebar-bottom">
@@ -47,7 +47,7 @@
     </div>
   </aside>
   <main class="main-shell">
-    <header class="topbar"><div class="breadcrumb"><span>DRISHTI</span><i>/</i><b id="page-breadcrumb">Overview</b></div><div class="topbar-actions"><span class="sandbox-label"><i></i> SANDBOX · SAMPLE DATA</span><a href="guide.html">Help & guide ↗</a><button id="top-switch" class="top-switch" type="button">Switch role</button></div></header>
+    <header class="topbar"><div class="breadcrumb"><span>DRISHTI</span><i>/</i><b id="page-breadcrumb">Overview</b></div><div class="topbar-actions"><span class="sandbox-label"><i></i> SANDBOX · SAMPLE DATA</span><details class="appearance-menu"><summary>◐ Appearance</summary><div class="appearance-popover"><label for="theme-select">Theme<select id="theme-select"><option value="midnight">Midnight</option><option value="ocean">Ocean</option><option value="violet">Violet</option><option value="light">Light</option></select></label><label for="font-size-select">Text size<select id="font-size-select"><option value="standard">Standard · 100%</option><option value="comfortable">Comfortable · 115%</option><option value="large">Large · 130%</option></select></label><small>Saved on this device</small></div></details><a href="/guide.html">Help & guide ↗</a><button id="top-switch" class="top-switch" type="button">Switch role</button></div></header>
     <div class="mobile-nav-wrap"><nav id="mobile-nav" class="mobile-nav" aria-label="Mobile demo sections"></nav></div>
     <div class="content-wrap"><div class="page-heading"><div><span class="eyebrow" id="page-kicker">WORKSPACE / USER</span><h1 id="page-title">Good morning. <em>Welcome back.</em></h1><p id="page-description">A calm place to inspect information before sharing it.</p></div><div class="page-date" id="page-date"></div></div>
     <div class="demo-disclaimer"><span>◈</span><div><b>Interactive demo environment</b><small>Sample records only. Changes stay in this browser tab and are never written to production.</small></div><span class="demo-pill">DEMO</span></div>
@@ -57,5 +57,5 @@
   </main>
 </section>
 <div id="toast-region" class="toast-region" aria-live="polite"></div>
-<script src="/demo.js?v=20261102" defer></script>
+<script src="/demo.js?v=20261102-ui" defer></script>
 </body></html>
