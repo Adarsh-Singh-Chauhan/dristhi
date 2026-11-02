@@ -4,6 +4,7 @@
   const $ = (selector, root=document) => root.querySelector(selector);
   const sessionKey = "drishti_demo_session_v2";
   const dataKey = "drishti_demo_data_v2";
+  const expiryKey = "drishti_demo_expiry_v2";
   const DEMO_MINUTES = 40;
   const DEMO_MS = DEMO_MINUTES * 60 * 1000;
   const accounts = {
@@ -192,11 +193,11 @@
   }
   function currentRole() { return session ? session.role : ""; }
   function startSession(role) {
-    let expiry=0;
-    try { expiry=JSON.parse(sessionStorage.getItem(sessionKey)||"null")?.expiresAt||0; } catch (_) {}
+    let expiry=Number(sessionStorage.getItem(expiryKey)||0);
     if(!expiry || expiry<=Date.now()) expiry=Date.now()+DEMO_MS;
     session={role,email:accounts[role].email,expiresAt:expiry};
     sessionStorage.setItem(sessionKey,JSON.stringify(session));
+    sessionStorage.setItem(expiryKey,String(expiry));
     renderWorkspace();
     updateTimer();
     clearInterval(timerHandle);
@@ -205,6 +206,7 @@
   }
   function switchRole() {
     session=null;
+    sessionStorage.removeItem(sessionKey);
     clearInterval(timerHandle);
     $("#demo-app").classList.add("hidden");
     $("#login-screen").classList.remove("hidden");
@@ -215,6 +217,7 @@
   function endSession(expired=false) {
     clearInterval(timerHandle);
     sessionStorage.removeItem(sessionKey);
+    sessionStorage.removeItem(expiryKey);
     sessionStorage.removeItem(dataKey);
     db=seedData();session=null;latestResult=null;selectedCaseId="";
     $("#demo-app").classList.add("hidden");
@@ -289,7 +292,8 @@
     });
   }
   function navigate(page) {
-    activePage=page;selectedCaseId="";
+    activePage=page;
+    if(page!=="case-desk" && page!=="my-cases") selectedCaseId="";
     renderNav();renderPage();
     window.scrollTo({top:0,behavior:"smooth"});
   }
@@ -315,7 +319,7 @@
       threats:renderThreats,
       "sos-queue":renderSOSQueue,
       users:renderUsers,
-      notices:renderNotices,
+      notices:session.role==="admin"?renderNotices:renderNoticesUser,
       audit:renderAudit,
       guide:renderGuide,
       methodology:renderMethodology
@@ -541,7 +545,7 @@
     const left=panel(isAdmin?"Review queue":"Submitted by you",isAdmin?db.cases.length+" demo case files across sample reporters":getOwnCases().length+" case files in your sample account");
     const tools=el("div","form-grid");
     const search=el("input","");search.type="search";search.placeholder="Search case ID or title…";search.value=caseSearch;search.className="input";
-    search.addEventListener("input",()=>{caseSearch=search.value;renderCaseWorkspace(root,isAdmin);});
+    search.addEventListener("input",()=>{\n      caseSearch=search.value;\n      const query=caseSearch.toLowerCase();\n      list.querySelectorAll(".case-list-item").forEach(item=>item.classList.toggle("hidden",!item.dataset.search.includes(query)));\n    });
     const filter=el("select","input");
     [["all","All statuses"],...allStatuses.map(s=>[s,statusLabels[s]])].forEach(([v,l])=>{const o=el("option","",l);o.value=v;if(v===caseFilter)o.selected=true;filter.append(o)});
     filter.addEventListener("change",()=>{caseFilter=filter.value;renderCaseWorkspace(root,isAdmin);});
@@ -549,7 +553,7 @@
     const list=el("div","case-list");
     cases.forEach(c=>{
       const b=el("button","case-list-item"+(selectedCaseId===c.id?" selected":""));
-      b.type="button";b.append(el("b","",c.title),el("small","",c.id+" · "+statusLabels[c.status]+" · "+formatDate(c.updated_at)));
+      b.type="button";b.dataset.search=(c.title+" "+c.id+" "+c.category).toLowerCase();b.append(el("b","",c.title),el("small","",c.id+" · "+statusLabels[c.status]+" · "+formatDate(c.updated_at)));
       b.addEventListener("click",()=>{selectedCaseId=c.id;renderCaseWorkspace(root,isAdmin);});
       list.append(b);
     });
