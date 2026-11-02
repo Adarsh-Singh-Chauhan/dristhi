@@ -193,6 +193,7 @@
   }
   function currentRole() { return session ? session.role : ""; }
   function startSession(role) {
+    clearInterval(timerHandle);
     let expiry=Number(sessionStorage.getItem(expiryKey)||0);
     if(!expiry || expiry<=Date.now()) expiry=Date.now()+DEMO_MS;
     session={role,email:accounts[role].email,expiresAt:expiry};
@@ -213,6 +214,9 @@
     $("#login-message").textContent="Choose the other role to continue the same sandbox session. Your demo timer will not reset.";
     $("#demo-email").value="";
     $("#demo-password").value="";
+    updateTimer();
+    clearInterval(timerHandle);
+    timerHandle=window.setInterval(updateTimer,1000);
   }
   function endSession(expired=false) {
     clearInterval(timerHandle);
@@ -228,8 +232,9 @@
     toast(expired?"Demo time expired.":"Demo data cleared.");
   }
   function updateTimer() {
-    if(!session) return;
-    const left=session.expiresAt-Date.now();
+    const expiry=session?.expiresAt || Number(sessionStorage.getItem(expiryKey)||0);
+    if(!expiry) return;
+    const left=expiry-Date.now();
     if(left<=0) { endSession(true); return; }
     const secs=Math.floor(left/1000);
     $("#timer").textContent=String(Math.floor(secs/60)).padStart(2,"0")+":"+String(secs%60).padStart(2,"0");
@@ -898,5 +903,10 @@
     if(saved&&saved.expiresAt>Date.now()&&accounts[saved.role]&&saved.email===accounts[saved.role].email) {
       session=saved;renderWorkspace();clearInterval(timerHandle);timerHandle=window.setInterval(updateTimer,1000);updateTimer();
     } else if(saved) { sessionStorage.removeItem(sessionKey); }
+    if(!session && Number(sessionStorage.getItem(expiryKey)||0)>Date.now()) {
+      clearInterval(timerHandle);
+      timerHandle=window.setInterval(updateTimer,1000);
+      updateTimer();
+    }
   } catch (_) { sessionStorage.removeItem(sessionKey); }
 })();
