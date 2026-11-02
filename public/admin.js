@@ -31,7 +31,7 @@
     authPanel.classList.add("hidden");
     denied.classList.add("hidden");
     dashboard.classList.remove("hidden");
-    await Promise.all([loadOverview(), loadSos(), loadAlerts(), loadNetworkIndicators(), loadUsers(), loadAudit()]);
+    await Promise.all([loadOverview(), loadSos(), loadCases(), loadAlerts(), loadNetworkIndicators(), loadUsers(), loadAudit()]);
   }
   async function verifySession() {
     if (!token) return;
@@ -76,6 +76,7 @@
       $("#stat-sos").textContent = data.total_sos;
       $("#stat-alerts").textContent = data.alerts;
       $("#stat-network").textContent = data.network_indicators ?? 0;
+      $("#stat-cases-open").textContent = data.open_cases ?? 0;
     } catch (error) { $("#stat-open").textContent = "—"; $("#sos-list").textContent = error.message; }
   }
   async function loadSos() {
@@ -177,6 +178,52 @@
       : "No mapped records yet. SOS locations appear only after a user opts in; IOC locations require analyst-supplied approximate coordinates.";
   }
 
+  async function loadCases() {
+    const root = $("#case-list");
+    root.replaceChildren(element("div", "empty", "Loading evidence case files…"));
+    try {
+      const items = await api("/api/v1/admin/cases");
+      root.replaceChildren();
+      if (!items.length) { root.append(element("div", "empty", "No user case files have been submitted yet.")); return; }
+      items.forEach((item) => {
+        const card = element("article", "card");
+        const header = element("div", "panel-head");
+        header.append(element("h3", "", item.title));
+        header.append(element("span", "pill " + (item.status === "verified_false" ? "high" : "medium"), item.status.replace(/_/g, " ")));
+        card.append(header);
+        card.append(element("div", "meta", item.category.replace(/_/g, " ").toUpperCase() + " · " + item.source_platform.toUpperCase() + " · " + item.reporter_email + " · " + item.created_at));
+        card.append(element("p", "", item.claim_text));
+        if (item.source_url) {
+          try { const url = new URL(item.source_url); if (["https:", "http:"].includes(url.protocol)) { const a=element("a","map-open-link","Open submitted source ↗"); a.href=url.href; a.target="_blank"; a.rel="noreferrer"; card.append(a); } } catch {}
+        }
+        const form = element("div", "form-grid");
+        const statusLabel = element("label", "", "Reviewer outcome");
+        const select = document.createElement("select");
+        ["under_review", "verified_false", "supported_by_sources", "misleading_context", "insufficient_evidence", "closed"].forEach((value) => {
+          const option = document.createElement("option"); option.value=value; option.textContent=value.replace(/_/g," ");
+          if (value===item.status) option.selected=true; select.append(option);
+        });
+        statusLabel.append(select); form.append(statusLabel);
+        const evidenceLabel = element("label", "", "Evidence summary (required for verified outcomes)");
+        const evidence = document.createElement("textarea"); evidence.maxLength=3000; evidence.value=item.evidence_summary || ""; evidence.placeholder="Summarise what primary sources establish, and what remains uncertain."; evidenceLabel.append(evidence); form.append(evidenceLabel);
+        const sourcesLabel = element("label", "", "Evidence source URLs · one per line");
+        const sources = document.createElement("textarea"); sources.maxLength=6000; sources.value=(item.evidence_sources || []).join("\n"); sources.placeholder="https://official-source.example/notice"; sourcesLabel.append(sources); form.append(sourcesLabel);
+        const notesLabel = element("label", "", "Internal reviewer notes");
+        const notes = document.createElement("textarea"); notes.maxLength=3000; notes.value=item.reviewer_notes || ""; notesLabel.append(notes); form.append(notesLabel);
+        const save = element("button", "button", "Save case review"); save.type="button";
+        save.addEventListener("click", async () => {
+          save.disabled=true;
+          try {
+            const evidenceSources=sources.value.split(/\r?\n/).map((value)=>value.trim()).filter(Boolean);
+            await api("/api/v1/admin/cases/"+encodeURIComponent(item.id), {method:"PATCH", body:JSON.stringify({status:select.value,evidence_summary:evidence.value,evidence_sources:evidenceSources,reviewer_notes:notes.value})});
+            await Promise.all([loadCases(),loadOverview(),loadAudit()]);
+          } catch(error) { alert(error.message); save.disabled=false; }
+        });
+        form.append(save); card.append(form); root.append(card);
+      });
+    } catch (error) { root.replaceChildren(element("div", "empty", error.message)); }
+  }
+
   async function loadNetworkIndicators() {
     const root = $("#network-list");
     try {
@@ -271,6 +318,7 @@
       await Promise.all([loadNetworkIndicators(), loadOverview(), loadAudit()]);
     } catch (error) { status.textContent = error.message; }
   });
+  $("#refresh-cases").addEventListener("click", loadCases);
   $("#refresh-iocs").addEventListener("click", loadNetworkIndicators);
   $("#refresh-users").addEventListener("click", loadUsers);
   $("#refresh-audit").addEventListener("click", loadAudit);
@@ -287,7 +335,7 @@
       await Promise.all([loadAlerts(), loadOverview()]);
     } catch (error) { status.textContent = error.message; }
   });
-  $("#refresh").addEventListener("click", async () => { await Promise.all([loadOverview(), loadSos(), loadAlerts(), loadNetworkIndicators(), loadUsers(), loadAudit()]); });
+  $("#refresh").addEventListener("click", async () => { await Promise.all([loadOverview(), loadSos(), loadCases(), loadAlerts(), loadNetworkIndicators(), loadUsers(), loadAudit()]); });
   $("#sign-out").addEventListener("click", () => { token = ""; sessionStorage.removeItem(tokenKey); dashboard.classList.add("hidden"); denied.classList.add("hidden"); authPanel.classList.remove("hidden"); showAuthMessage("You have signed out."); });
   verifySession();
 })();
