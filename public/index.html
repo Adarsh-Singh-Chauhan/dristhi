@@ -1,176 +1,60 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1220">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="/manifest.webmanifest">
-  <link rel="icon" href="/icons/drishti-icon.svg" type="image/svg+xml">
-  <meta name="description" content="DRISHTI — an explainable information-integrity and cybersecurity signal analysis prototype.">
-  <title>DRISHTI — Information Integrity Workspace</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09121d">
+<meta name="description" content="DRISHTI helps people pause, inspect information-integrity signals, preserve evidence and route suspicious public claims for human review.">
+<title>DRISHTI — Pause. Verify. Understand.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/site.css"><link rel="icon" href="/icons/drishti-icon.svg" type="image/svg+xml">
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="#top" aria-label="DRISHTI home">
-        <span class="brand-mark"><i></i><i></i><i></i></span>
-        <span><b>DRISHTI</b><small>INFORMATION INTEGRITY</small></span>
-      </a>
-      <div class="sidebar-label">WORKSPACE</div>
-      <nav class="side-nav" aria-label="Main navigation">
-        <button class="nav-link active" data-view="analysis"><span class="nav-icon">⌂</span> Overview</button>
-        <button class="nav-link" data-view="history"><span class="nav-icon">◷</span> Analysis history</button>
-        <button class="nav-link" data-view="method"><span class="nav-icon">⌘</span> Methodology</button>
-        <a class="nav-link" href="/alerts.html"><span class="nav-icon">⚑</span> Alerts &amp; SOS</a>
-        <a class="nav-link" href="/admin.html"><span class="nav-icon">▣</span> Superadmin login</a>
-        <a class="nav-link" href="/guide.html"><span class="nav-icon">⌘</span> User guide</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <div class="privacy-card">
-          <span class="privacy-icon">✳</span>
-          <b>Human judgement first</b>
-          <p>Signals guide review. They never replace evidence or independent thinking.</p>
-        </div>
-        <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">API documentation <span>↗</span></a>
-        <div class="sidebar-foot">DRISHTI <span>PROTOTYPE · v0.3</span></div>
-      </div>
-    </aside>
-
-    <main class="main-content" id="top">
-      <header class="topbar">
-        <div class="breadcrumb"><span>Workspace</span><b>/</b><strong id="crumb-title">Overview</strong></div>
-        <div class="top-actions">
-          <span id="api-status" class="api-status"><i></i> Checking API</span>
-          <button id="install-app" class="button button-outline install-app-button" type="button">Install app ↥</button>
-          <button id="auth-open" class="button button-outline">Sign in <span>↗</span></button>
-          <div id="user-chip" class="user-chip hidden"><span>●</span><b id="user-email">Signed in</b><button id="sign-out" aria-label="Sign out">×</button></div>
-        </div>
-      </header>
-
-      <section class="view active" id="view-analysis">
-        <div class="hero">
-          <div class="hero-copy">
-            <div class="eyebrow"><span class="eyebrow-dot"></span> A CYBERSECURITY-LED VERIFICATION WORKSPACE</div>
-            <h1>Pause.<br><em>Verify.</em> Then share.</h1>
-            <p>Not every forward deserves your trust. Examine the signals, trace the source and make a more informed decision before information travels further.</p>
-            <div class="hero-pills"><span>Explainable signals</span><span>Human-led verification</span><span>Privacy-aware design</span></div>
-          </div>
-          <div class="hero-art" aria-hidden="true">
-            <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-            <div class="core-eye"><span class="eye-ring"></span><span class="eye-center"></span></div>
-            <div class="float-tag tag-one">SOURCE <b>?</b></div>
-            <div class="float-tag tag-two">CONTEXT <b>↗</b></div>
-            <div class="float-tag tag-three">SIGNAL <b>✳</b></div>
-            <div class="art-caption">LOOK CLOSER<br><b>THINK CLEARER</b></div>
-          </div>
-        </div>
-
-        <div class="notice"><span>ⓘ</span><p><b>Important:</b> DRISHTI identifies surface-level review signals. It does not decide whether content is true or false, and it does not classify political viewpoints.</p></div>
-
-        <div class="section-heading">
-          <div><span class="section-kicker">CONTENT REVIEW</span><h2>Inspect a message</h2><p>Paste text from a public post or a message you are authorised to review.</p></div>
-          <button id="sample-button" class="text-button">Load sample message <span>↗</span></button>
-        </div>
-
-        <div class="analysis-grid">
-          <section class="panel input-panel">
-            <div class="panel-head"><div><span class="step-number">01</span><b>Message details</b></div><span class="micro-label">MANUAL SUBMISSION</span></div>
-            <form id="analysis-form">
-              <label for="content">Message or claim <span class="required">*</span></label>
-              <textarea id="content" minlength="20" maxlength="10000" required placeholder="Paste the message or public claim here. Keep the original wording where possible..."></textarea>
-              <div class="field-meta"><span>Do not include private information or credentials.</span><span id="char-count">0 / 10,000</span></div>
-              <div class="form-row">
-                <div class="field-group"><label for="platform">Where did you see it?</label><select id="platform"><option value="whatsapp">WhatsApp</option><option value="instagram">Instagram</option><option value="telegram">Telegram</option><option value="facebook">Facebook</option><option value="x">X / Twitter</option><option value="web">Website</option><option value="other" selected>Other / Unknown</option></select></div>
-                <div class="field-group"><label for="source-url">Original source URL <span class="optional">OPTIONAL</span></label><input id="source-url" type="url" placeholder="https://example.com/source"></div>
-              </div>
-              <label class="check-row"><input id="save-history" type="checkbox" checked><span>Save a short report to my history when signed in</span></label>
-              <button class="button button-primary analyze-button" type="submit"><span>Analyse message</span><b>→</b></button>
-              <p class="form-foot">Your full message is not stored by the API. A short excerpt and signal summary are saved only when you are signed in and history saving is enabled.</p>
-            </form>
-          </section>
-
-          <section class="panel result-panel" aria-live="polite">
-            <div class="panel-head"><div><span class="step-number">02</span><b>Signal report</b></div><span class="micro-label">EXPLAINABLE OUTPUT</span></div>
-            <div id="empty-report" class="empty-report">
-              <div class="empty-graphic"><span>✳</span><i></i><b></b></div>
-              <h3>Your review starts here.</h3>
-              <p>Submit a message to see which surface-level patterns may need closer attention.</p>
-              <div class="empty-points"><span>01 &nbsp; Inspect language</span><span>02 &nbsp; Understand signals</span><span>03 &nbsp; Verify the source</span></div>
-            </div>
-            <div id="report" class="report hidden">
-              <div class="score-row">
-                <div class="score-gauge" id="score-gauge"><div><strong id="score-value">0</strong><small>/ 100</small></div></div>
-                <div class="score-copy"><span class="micro-label">REVIEW PRIORITY</span><h3 id="priority-label">Needs review</h3><p id="result-summary"></p></div>
-              </div>
-              <div class="report-divider"></div>
-              <div class="report-section-title"><b>Detected indicators</b><span id="indicator-count">0 signals</span></div>
-              <div id="indicator-list" class="indicator-list"></div>
-              <div class="report-divider"></div>
-              <div class="report-section-title"><b>What to verify next</b><span>CHECKLIST</span></div>
-              <ul id="check-list" class="check-list"></ul>
-              <div class="report-disclaimer" id="report-disclaimer"></div>
-              <div class="report-source" id="report-source"></div>
-            </div>
-          </section>
-        </div>
-        <div class="bottom-note"><span>✳</span><div><b>A signal is a starting point, not a verdict.</b><p>Always seek primary evidence, compare independent sources and retain room for uncertainty.</p></div></div>
-      </section>
-
-      <section class="view" id="view-history">
-        <div class="page-intro"><span class="section-kicker">YOUR WORKSPACE</span><h1>Analysis <em>history.</em></h1><p>Saved reports belong to your account. Sign in to review or remove them.</p></div>
-        <div class="panel history-panel">
-          <div class="panel-head"><div><span class="step-number">03</span><b>Saved reports</b></div><button id="refresh-history" class="text-button">Refresh ↻</button></div>
-          <div id="history-content" class="history-content"><div class="history-empty"><span>◷</span><b>No saved reports loaded</b><p>Sign in and refresh to view your analysis history.</p></div></div>
-        </div>
-      </section>
-
-      <section class="view" id="view-method">
-        <div class="page-intro"><span class="section-kicker">TRANSPARENCY BY DESIGN</span><h1>Understand the <em>signals.</em></h1><p>DRISHTI's current baseline is intentionally simple and explainable. Learn what it can—and cannot—tell you.</p></div>
-        <div class="method-grid">
-          <article class="panel method-card"><span class="method-icon">↗</span><h3>Urgency & sharing pressure</h3><p>Looks for language that pressures readers to act immediately or forward a message widely.</p><small>Surface-level language pattern</small></article>
-          <article class="panel method-card"><span class="method-icon">⌁</span><h3>Authority & forwarding claims</h3><p>Highlights authority references without an in-text source and markers that suggest the original context may be missing.</p><small>Source context is not verified</small></article>
-          <article class="panel method-card"><span class="method-icon">!</span><h3>Panic & formatting signals</h3><p>Surfaces alarm-oriented wording, unusually high capitalisation and repeated emphatic punctuation.</p><small>Not evidence of falsity</small></article>
-          <article class="panel method-card"><span class="method-icon">◎</span><h3>Link review</h3><p>Recognises selected common URL shorteners so readers know to inspect the destination safely.</p><small>No malware scan is performed</small></article>
-        </div>
-        <div class="panel method-warning"><span>ⓘ</span><div><b>What the score means</b><p>The score is a triage aid based on matched rules. It is not a probability, credibility rating, fact-check result or judgement about a person, party or ideology. New models must be evaluated for false positives and bias before use.</p></div></div>
-        <div class="method-flow"><span>SUBMIT</span><b>→</b><span>INSPECT</span><b>→</b><span>EXPLAIN</span><b>→</b><span>VERIFY</span><b>→</b><span>DECIDE</span></div>
-      </section>
-
-      <footer class="footer"><span>© 2026 DRISHTI · An information-integrity prototype by Adarsh Singh Chauhan</span><span><a href="https://github.com/Adarsh-Singh-Chauhan/dristhi" target="_blank" rel="noreferrer">GitHub ↗</a><a href="/docs" target="_blank" rel="noreferrer">API Docs ↗</a></span></footer>
-    </main>
-  </div>
-
-  <nav class="mobile-dock" aria-label="User app navigation">
-    <button class="dock-link nav-link active" type="button" data-view="analysis"><span>◎</span><small>Analyse</small></button>
-    <button class="dock-link nav-link" type="button" data-view="history"><span>◷</span><small>History</small></button>
-    <button class="dock-link nav-link" type="button" data-view="method"><span>⌘</span><small>Guide</small></button>
-    <a class="dock-link" href="/guide.html"><span>⌑</span><small>Help</small></a>
-    <a class="dock-link" href="/alerts.html"><span>⚑</span><small>Safety</small></a>
-  </nav>
-
-  <dialog id="auth-dialog" class="auth-dialog">
-    <form id="auth-form" method="dialog">
-      <button type="button" id="auth-close" class="dialog-close" aria-label="Close">×</button>
-      <span class="section-kicker">YOUR DRISHTI ACCOUNT</span>
-      <h2 id="auth-title">Welcome <em>back.</em></h2>
-      <p id="auth-description">Sign in to save your analysis history.</p>
-      <label for="auth-email">Email address</label><input id="auth-email" type="email" autocomplete="email" required placeholder="you@example.com">
-      <label for="auth-password">Password</label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" required placeholder="At least 8 characters">
-      <button id="auth-submit" class="button button-primary" type="submit">Sign in →</button>
-      <p class="auth-switch"><span id="auth-switch-label">New to DRISHTI?</span> <button type="button" id="auth-mode-toggle">Create an account</button></p>
-      <p id="auth-message" class="auth-message" role="status"></p>
-    </form>
-  </dialog>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="/config.js"></script>
-  <script src="/app.js"></script>
-</body>
-</html>
+<header class="site-header"><a class="brand" href="/"><span class="brand-mark"><i></i><i></i><i></i></span><span><b>DRISHTI</b><small>INFORMATION INTEGRITY</small></span></a>
+<nav class="site-nav"><a href="#why">Why it matters</a><a href="#workflow">How it works</a><a href="#product">Product</a><a href="/guide.html">User guide</a></nav>
+<div class="header-actions"><a class="button button-quiet" href="/app.html">Open workspace ↗</a><a class="button button-primary" href="/demo.html">Try 40-min demo <span>→</span></a><button class="menu-toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button></div>
+</header>
+<main>
+<section class="hero wrap">
+ <div class="hero-copy"><span class="eyebrow"><i></i> A HUMAN-LED INFORMATION INTEGRITY WORKSPACE</span>
+ <h1>Pause.<br><em>Verify.</em><br>Then share.</h1>
+ <p class="hero-lede">A forwarded message. A suspicious public notice. A video without its original context. DRISHTI gives people a calmer, evidence-first way to inspect a claim and send it for human review.</p>
+ <div class="hero-actions"><a class="button button-primary" href="/demo.html">Explore the live product demo <span>→</span></a><a class="button button-quiet" href="/app.html">Open user workspace ↗</a></div>
+ <div class="trust-points"><span>Explainable review signals</span><span>Evidence-linked case files</span><span>Human decisions, not auto-verdicts</span></div>
+ </div>
+ <div class="hero-visual">
+  <div class="visual-top"><span><i></i> DRISHTI / REVIEW FLOW</span><span class="live-label">PRODUCT PREVIEW</span></div>
+  <div class="mock-claim"><div class="mock-label">SUBMITTED PUBLIC CLAIM <span>DEMO EXAMPLE</span></div><p>“URGENT — forward this official alert to every group immediately…”</p><div class="mock-meta"><span>Source not yet confirmed</span><span>WhatsApp · sample text</span></div></div>
+  <div class="signal-connector"><i></i><i></i><i></i></div>
+  <div class="mock-report"><div class="report-heading"><span>EXPLAINABLE SIGNAL REPORT</span><b>REVIEW PRIORITY</b></div><div class="report-row"><span class="signal-icon">↗</span><div><b>Forwarding pressure</b><small>Encourages redistribution before verification</small></div><span class="signal-tag">MATCHED</span></div><div class="report-row"><span class="signal-icon">!</span><div><b>Urgency language</b><small>Check the original notice and publication date</small></div><span class="signal-tag">MATCHED</span></div><div class="report-foot"><span>Signals are not proof of falsity.</span><span>HUMAN REVIEW REQUIRED</span></div></div>
+  <div class="mock-case"><span class="case-mark">▤</span><div><b>Case file ready for review</b><small>Source · context · evidence · reviewer outcome</small></div><span class="case-arrow">↗</span></div>
+ </div>
+</section>
+<section class="evidence-band"><div class="wrap evidence-head"><div><span class="eyebrow">THE CONTEXT IN INDIA</span><h2>Why an evidence-first workflow matters.</h2></div><p>Independent surveys and published government reports show the scale of the information-integrity challenge. These are external figures—not DRISHTI performance metrics.</p></div>
+<div class="wrap stat-grid">
+ <a class="stat-card" href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=2247720&amp;lang=1&amp;reg=1" target="_blank" rel="noreferrer"><strong>2,913</strong><span>PIB Fact Check Unit fact-checks published as of 1 April 2026</span><small>PIB · Ministry of Information &amp; Broadcasting ↗</small></a>
+ <a class="stat-card" href="https://reutersinstitute.politics.ox.ac.uk/digital-news-report/2025/india" target="_blank" rel="noreferrer"><strong>53%</strong><span>of the India survey sample cited WhatsApp as the biggest misinformation threat</span><small>Reuters Institute · Digital News Report 2025 ↗</small></a>
+ <a class="stat-card" href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=2248361&amp;lang=1&amp;reg=3" target="_blank" rel="noreferrer"><strong>1,400+</strong><span>URLs the Government said were targeted for blocking during Operation Sindoor</span><small>PIB · 2 April 2026 ↗</small></a>
+</div><p class="wrap evidence-note">Survey scope matters: the Reuters Institute India sample covers English-language Indian news users with internet access, not every resident. Government figures are attributed to the cited PIB releases.</p>
+</section>
+<section class="section wrap" id="why">
+ <div class="section-title"><span class="eyebrow">REAL-WORLD EXAMPLES</span><h2>Misleading content changes shape.<br><em>Verification needs context.</em></h2><p>These published reports illustrate the kind of problems a human-led verification process must handle. They are not cases detected by DRISHTI.</p></div>
+ <div class="incident-grid">
+  <article class="incident-card"><div class="incident-date">24 JUL 2026 <span>AI-GENERATED VIDEO</span></div><h3>Fake video attributed to Lt Gen Rajeev Puri</h3><p>News On AIR reported that the PIB Fact Check Unit debunked an AI-generated video falsely claiming the officer had ordered additional force deployment in Delhi.</p><a href="https://newsonair.gov.in/government-debunks-fake-ai-generated-video-of-lt-gen-rajeev-puri/" target="_blank" rel="noreferrer">Read the government report ↗</a></article>
+  <article class="incident-card"><div class="incident-date">03 AUG 2026 <span>MANIPULATED FOOTAGE</span></div><h3>Doctored police and minister videos around protests</h3><p>AFP Fact Check compared circulating clips with original footage and reported altered audio in videos falsely attributed to public officials.</p><a href="https://factcheck.afp.com/doc.afp.com.C3KH4KF" target="_blank" rel="noreferrer">Read AFP's verification ↗</a></article>
+ </div>
+</section>
+<section class="workflow-section" id="workflow"><div class="wrap"><div class="section-title"><span class="eyebrow">THE DRISHTI WORKFLOW</span><h2>From a forwarded message<br><em>to a traceable case.</em></h2></div>
+<div class="workflow-grid"><article><b>01</b><h3>Submit</h3><p>Paste a public claim or content you are authorised to review. Keep the original wording and source URL.</p></article><article><b>02</b><h3>Inspect signals</h3><p>Understand the matched language and link patterns, plus the limitations of the current baseline.</p></article><article><b>03</b><h3>Preserve evidence</h3><p>Create a case file with context, source references and a clear review request.</p></article><article><b>04</b><h3>Human review</h3><p>A reviewer records a sourced outcome—or leaves the matter open when evidence is insufficient.</p></article></div></div></section>
+<section class="section wrap" id="product"><div class="section-title"><span class="eyebrow">A RESPONSIBLE PRODUCT, NOT A BLACK BOX</span><h2>Built around evidence.<br><em>Designed for real workflows.</em></h2><p>Explore the current workspace screens. Screen illustrations are representative product UI, not live account data.</p></div>
+ <div class="showcase-grid"><figure class="showcase wide"><img src="/images/user-workspace-screen.svg" alt="Illustrative DRISHTI user workspace showing claim analysis and review signals"><figcaption><b>User workspace</b><span>Analyse a claim, inspect signals, preserve source context and create a case.</span><a href="/app.html">Open workspace ↗</a></figcaption></figure>
+ <figure class="showcase phone"><img src="/images/mobile-user-screen.svg" alt="Illustrative DRISHTI mobile experience with analysis and case status"><figcaption><b>Phone-first experience</b><span>Responsive PWA layout with a focused analysis flow and case tracking.</span><a href="/guide.html#mobile">Phone setup guide ↗</a></figcaption></figure>
+ <figure class="showcase wide"><img src="/images/superadmin-control-room.svg" alt="Illustrative DRISHTI Superadmin console with case review and operations"><figcaption><b>Superadmin control room</b><span>Evidence review, SOS triage, defensive indicators, notices and audit activity.</span><a href="/admin.html">Superadmin access ↗</a></figcaption></figure></div>
+ <div class="feature-grid"><article><span>01 / USER</span><h3>Explainable claim review</h3><p>Matched indicators, review checklist, source capture and analysis history.</p></article><article><span>02 / CASES</span><h3>Evidence-linked case files</h3><p>Track a report and its review status. Decisions require evidence and a reviewer.</p></article><article><span>03 / OPERATIONS</span><h3>Superadmin review</h3><p>Case desk, SOS queue, public IP/domain registry, notices and audit trail.</p></article><article><span>04 / SAFETY</span><h3>Alerts &amp; SOS workflow</h3><p>In-app notices, trusted contacts and an optional one-time location snapshot.</p></article><article><span>05 / MOBILE</span><h3>Installable web app</h3><p>Responsive workspace that can be added to an Android or iPhone home screen.</p></article><article><span>06 / GOVERNANCE</span><h3>Privacy boundaries</h3><p>No silent GPS tracking, no person attribution from IPs, and no automated public accusations.</p></article></div>
+</section>
+<section class="model-section"><div class="wrap model-grid"><div><span class="eyebrow">MULTILINGUAL RESEARCH ROADMAP</span><h2>Language-aware analysis.<br><em>Human-reviewed outcomes.</em></h2><p>The product direction includes mBERT and XLM-RoBERTa research for English, Hindi and Hinglish, with evaluation by language and claim category. NetworkX graph signals are planned for coordinated public activity using lawful, privacy-minimised metadata.</p><p>These model and graph components are not active in the production analyser yet. A verified, licensed dataset and independent evaluation are required before a model can influence live review.</p><div class="model-tags"><span>mBERT</span><span>XLM-RoBERTa</span><span>NetworkX research</span><span>Official API integrations</span></div></div><div class="model-boundary"><b>What DRISHTI does today</b><ul><li>Deterministic, explainable text-pattern signals</li><li>Evidence-linked case creation and review workflow</li><li>Human-reviewed case outcomes</li></ul><b>What it does not claim</b><ul><li>No live social-media crawler or bot verdict</li><li>No trained misinformation model deployed</li><li>No automatic truth / false verdict or takedown</li></ul></div></div></section>
+<section class="demo-cta wrap"><div><span class="eyebrow">TRY IT YOURSELF · 40 MINUTES</span><h2>Walk through both sides<br><em>of the review process.</em></h2><p>Explore the public User and Superadmin demonstration workspaces with shared fictional records. Switch roles to see a case move from submission to review.</p></div><div class="demo-panel"><span class="demo-time">40:00 <small>SESSION LIMIT</small></span><b>Two roles · One sample case flow</b><p>User submits → Superadmin reviews → User checks the outcome.</p><a class="button button-primary" href="/demo.html">Launch interactive demo →</a><small>Sample data only · Browser session · No production access</small></div></section>
+</main>
+<footer class="site-footer"><div class="wrap footer-row"><a class="brand" href="/"><span class="brand-mark"><i></i><i></i><i></i></span><span><b>DRISHTI</b><small>PAUSE · VERIFY · UNDERSTAND</small></span></a><div><b>Explore</b><a href="/app.html">Workspace</a><a href="/demo.html">40-minute demo</a><a href="/guide.html">User guide</a><a href="/docs">API docs</a></div><div><b>Connect</b><a href="https://github.com/Adarsh-Singh-Chauhan/dristhi" target="_blank" rel="noreferrer">GitHub repository ↗</a><a href="https://github.com/Adarsh-Singh-Chauhan/dristhi/issues" target="_blank" rel="noreferrer">Request a walkthrough / raise an issue ↗</a><a href="mailto:adarshsinghchauhan904@gmail.com?subject=DRISHTI%20Product%20Walkthrough">Email the project owner ↗</a></div></div><div class="wrap footer-bottom"><span>© 2026 DRISHTI · Prototype for evidence-led information integrity</span><span>A review signal is not proof. People and sources deserve context.</span></div></footer>
+<script src="/site.js" defer></script>
+</body></html>
