@@ -216,7 +216,7 @@
     $("#demo-password").value="";
     updateTimer();
     clearInterval(timerHandle);
-    timerHandle=window.setInterval(updateTimer,1000);
+    if(sessionStorage.getItem(expiryKey)) timerHandle=window.setInterval(updateTimer,1000);
   }
   function endSession(expired=false) {
     clearInterval(timerHandle);
