@@ -14,13 +14,14 @@ from urllib.parse import urlparse
 
 import pandas as pd
 from datasets import Dataset
-from sklearn.metrics import accuracy_score, classification_report, precision_recall_fscore_support
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
     DataCollatorWithPadding,
     Trainer,
     TrainingArguments,
+    set_seed,
 )
 
 LABELS = ["supported", "false_or_manipulated", "misleading_context", "insufficient_evidence"]
@@ -123,6 +124,7 @@ def main() -> None:
         parser.error("epochs, batch-size and learning-rate must be positive.")
 
     frame = load_and_validate(args.dataset)
+    set_seed(args.seed)
     base_model = MODEL_CHOICES[args.model]
     label2id = {label: index for index, label in enumerate(LABELS)}
     id2label = {index: label for label, index in label2id.items()}
@@ -174,6 +176,9 @@ def main() -> None:
         truth, predicted, labels=list(range(len(LABELS))),
         target_names=LABELS, output_dict=True, zero_division=0,
     )
+    test_confusion = confusion_matrix(
+        truth, predicted, labels=list(range(len(LABELS)))
+    ).tolist()
 
     per_language = {}
     test_frame = frame[frame["split"] == "test"].reset_index(drop=True)
@@ -192,6 +197,9 @@ def main() -> None:
             "macro_precision": float(p),
             "macro_recall": float(r),
             "macro_f1": float(f),
+            "confusion_matrix": confusion_matrix(
+                lang_truth, lang_pred, labels=list(range(len(LABELS)))
+            ).tolist(),
         }
 
     trainer.save_model(str(args.output))
@@ -207,6 +215,12 @@ def main() -> None:
         "split_counts": frame["split"].value_counts().to_dict(),
         "validation_metrics": validation_metrics,
         "test_metrics": test_report,
+        "test_confusion_matrix": {
+            "labels": LABELS,
+            "rows_are_true_labels": True,
+            "columns_are_predicted_labels": True,
+            "values": test_confusion,
+        },
         "per_language_test_metrics": per_language,
         "interpretation": (
             "Research triage signal only. Not a truth verdict, person score, political classifier, "
