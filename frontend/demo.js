@@ -7,6 +7,29 @@
   const expiryKey = "drishti_demo_expiry_v2";
   const DEMO_MINUTES = 40;
   const DEMO_MS = DEMO_MINUTES * 60 * 1000;
+
+  const preferencesKey = "drishti_demo_preferences_v1";
+  const defaultPreferences = { theme: "midnight", textSize: "comfortable" };
+  function loadPreferences() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(preferencesKey) || "null");
+      return {
+        theme: ["midnight","ocean","violet","light"].includes(saved?.theme) ? saved.theme : defaultPreferences.theme,
+        textSize: ["standard","comfortable","large"].includes(saved?.textSize) ? saved.textSize : defaultPreferences.textSize
+      };
+    } catch (_) { return { ...defaultPreferences }; }
+  }
+  let preferences = loadPreferences();
+  function applyPreferences() {
+    document.body.dataset.demoTheme = preferences.theme;
+    document.body.dataset.demoText = preferences.textSize;
+    if ($("#theme-select")) $("#theme-select").value = preferences.theme;
+    if ($("#font-size-select")) $("#font-size-select").value = preferences.textSize;
+  }
+  function savePreferences() {
+    try { localStorage.setItem(preferencesKey, JSON.stringify(preferences)); }
+    catch (_) { toast("Display preferences could not be saved in this browser."); }
+  }
   const accounts = {
     user: { email:"demo.user@drishti.in", password:"DRISHTI-USER-40", label:"User workspace" },
     admin: { email:"demo.superadmin@drishti.in", password:"DRISHTI-ADMIN-40", label:"Superadmin control room" }
@@ -380,6 +403,68 @@
     quick.append(quickAction("⌕","Analyse a claim","Inspect a message",()=>navigate("analyse")),quickAction("▤","Create a case","Send for human review",()=>navigate("my-cases")),quickAction("⚑","Safety & SOS","Submit an internal request",()=>navigate("safety")));
     q.append(quick);q.style.marginTop="13px";root.append(q);
   }
+
+  const demoRegionSignals = [
+    { name: "Central India", value: 82, note: "Highest illustrative activity" },
+    { name: "South-East Asia", value: 68, note: "Regional sample signals" },
+    { name: "Western Europe", value: 54, note: "Regional sample signals" },
+    { name: "East Africa", value: 43, note: "Regional sample signals" },
+    { name: "North America", value: 31, note: "Regional sample signals" }
+  ];
+  function renderGlobePanel() {
+    const p = panel("Global sample activity", "Rotating globe · illustrative regional signal index");
+    p.classList.add("globe-panel");
+    const layout = el("div", "globe-layout");
+    const stage = el("div", "globe-stage");
+    const globe = el("div", "globe-sphere");
+    globe.innerHTML = `<svg viewBox="0 0 520 520" role="img" aria-label="Animated illustrative world globe with fictional sample activity markers">
+      <defs>
+        <radialGradient id="globe-ocean" cx="35%" cy="28%" r="75%"><stop offset="0%" stop-color="#1c5265"/><stop offset="58%" stop-color="#103142"/><stop offset="100%" stop-color="#071724"/></radialGradient>
+        <radialGradient id="globe-shine" cx="28%" cy="20%" r="75%"><stop offset="0%" stop-color="#ffffff" stop-opacity=".22"/><stop offset="65%" stop-color="#ffffff" stop-opacity="0"/><stop offset="100%" stop-color="#000000" stop-opacity=".28"/></radialGradient>
+        <clipPath id="globe-clip"><circle cx="260" cy="260" r="207"/></clipPath>
+      </defs>
+      <circle cx="260" cy="260" r="216" class="globe-shadow"/><circle cx="260" cy="260" r="207" fill="url(#globe-ocean)" class="globe-ocean"/>
+      <g clip-path="url(#globe-clip)"><g class="globe-map-spin">
+        <g class="globe-grid"><ellipse cx="260" cy="260" rx="198" ry="62"/><ellipse cx="260" cy="260" rx="198" ry="126"/><ellipse cx="260" cy="260" rx="91" ry="203"/><ellipse cx="260" cy="260" rx="151" ry="203"/><path d="M53 260H467M67 190H453M67 330H453"/></g>
+        <g class="globe-land">
+          <path d="M77 166 96 135 130 112 164 121 189 144 183 171 160 187 148 214 123 227 101 205 83 197Z"/>
+          <path d="M163 231 190 239 199 268 187 302 176 347 160 322 153 284 156 254Z"/>
+          <path d="M234 160 255 144 281 151 296 169 280 187 257 182Z"/>
+          <path d="M258 194 294 195 313 223 306 260 284 307 263 278 248 238Z"/>
+          <path d="M291 145 326 119 365 127 405 151 419 176 393 190 366 184 345 200 323 187 304 179Z"/>
+          <path d="M369 301 394 294 416 310 404 330 378 326Z"/><path d="M218 205 231 198 241 210 233 220Z"/>
+        </g>
+        <g class="globe-routes"><path d="M142 205 Q230 80 267 174"/><path d="M267 174 Q320 190 328 256"/><path d="M328 256 Q366 245 382 262"/><path d="M328 256 Q310 292 286 316"/></g>
+        <g class="globe-hotspots">
+          <circle cx="142" cy="205" r="7" class="globe-pulse"/><circle cx="142" cy="205" r="4" class="globe-point"/>
+          <circle cx="267" cy="174" r="8" class="globe-pulse delay-one"/><circle cx="267" cy="174" r="4" class="globe-point"/>
+          <circle cx="328" cy="256" r="12" class="globe-pulse delay-two"/><circle cx="328" cy="256" r="6" class="globe-point primary"/>
+          <circle cx="382" cy="262" r="8" class="globe-pulse delay-three"/><circle cx="382" cy="262" r="4" class="globe-point"/>
+          <circle cx="286" cy="316" r="7" class="globe-pulse delay-four"/><circle cx="286" cy="316" r="4" class="globe-point"/>
+        </g>
+      </g><circle cx="260" cy="260" r="207" fill="url(#globe-shine)"/></g>
+      <circle cx="260" cy="260" r="207" class="globe-rim"/><ellipse cx="260" cy="260" rx="229" ry="82" class="globe-orbit"/><ellipse cx="260" cy="260" rx="229" ry="82" class="globe-orbit orbit-two"/>
+    </svg>`;
+    stage.append(globe, el("span", "globe-stage-label", "GLOBE PREVIEW · SYNTHETIC DATA"));
+    const detail = el("div", "globe-details");
+    const lead = el("div", "globe-lead");
+    lead.append(el("span", "globe-lead-kicker", "HIGHEST SAMPLE INDEX"), el("strong", "", "Central India"), el("b", "", "82 / 100"));
+    detail.append(lead);
+    const list = el("div", "globe-region-list");
+    demoRegionSignals.forEach((region, index) => {
+      const row = el("div", "globe-region-row" + (index === 0 ? " is-leading" : ""));
+      const copy = el("div", "globe-region-copy");
+      copy.append(el("b", "", region.name), el("small", "", region.note));
+      const value = el("strong", "", String(region.value));
+      const track = el("div", "globe-region-track");
+      const fill = el("i", ""); fill.style.width = region.value + "%";
+      track.append(fill); row.append(copy, value, track); list.append(row);
+    });
+    detail.append(list, el("p", "globe-data-note", "SIMULATED INDEX ONLY — these regions and values are fictional UI sample data, not real case counts, verified locations or the origin of misinformation. Live regional insights require trusted location metadata and backend aggregation."));
+    layout.append(stage, detail); p.append(layout);
+    return p;
+  }
+
   function renderAdminOverview(root) {
     const openCases=db.cases.filter(c=>["received","under_review"].includes(c.status)).length;
     const openSos=db.sos.filter(s=>["open","under_review"].includes(s.status)).length;
@@ -389,6 +474,7 @@
     const banner=el("section","welcome-panel");banner.style.marginTop="13px";
     banner.append(chip("SUPERADMIN · DEMONSTRATION ROLE","purple"),el("h2","","Evidence first. Every decision traceable."),el("p","","This tour uses fictional reporter accounts and sample records. You can add evidence references, record review outcomes and inspect the audit trail without touching the production environment."));
     const actionRow=el("div","welcome-actions");actionRow.append(button("Open evidence case desk →",()=>navigate("case-desk"),"button-primary"),button("Review SOS queue",()=>navigate("sos-queue")));banner.append(actionRow);root.append(banner);
+    root.append(renderGlobePanel());
     const grid=el("div","grid grid-2");grid.style.marginTop="13px";
     const queue=panel("Priority review queue","Oldest open sample items");
     const pending=db.cases.filter(c=>["received","under_review"].includes(c.status)).sort((a,b)=>a.created_at.localeCompare(b.created_at)).slice(0,5);
@@ -757,14 +843,15 @@
     grid.append(method,limits);root.append(grid);
   }
   function renderAtlas(root) {
-    const p=panel("Global signal atlas","Fictional points for the guided tour — no live user locations.");
-    const map=document.createElement("div");
-    map.innerHTML='<svg class="atlas" viewBox="0 0 1000 470" role="img" aria-label="Fictional global demonstration map"><defs><linearGradient id="ocean" x2="1" y2="1"><stop stop-color="#123343"/><stop offset="1" stop-color="#091724"/></linearGradient><pattern id="gridlines" width="50" height="47" patternUnits="userSpaceOnUse"><path d="M50 0H0V47" fill="none" stroke="#8ac9c7" stroke-opacity=".12"/></pattern></defs><rect width="1000" height="470" rx="16" fill="url(#ocean)"/><rect width="1000" height="470" rx="16" fill="url(#gridlines)"/><g fill="#2a5868" stroke="#75a7ac" stroke-opacity=".35" stroke-width="2"><path d="M72 84l42-25 67 8 43 29 13 36-24 22-14 38-40 6-19-25-35-7-17-32-29-18zM183 205l30 12 26 42-11 40-17 47-22 46-18-31-6-47-18-38 13-45zM390 83l32-20 49 7 25 24-8 28-39 14-34-18zM430 143l35 14 36 44-9 51-22 66-34 60-26-43-6-67 11-59zM488 87l67-31 91 8 39 26 53-8 75 41 39 42-24 34-56-5-21 23-49-11-29 26-43-18-28 16-33-28-48-1-28-35-41-11-12-35zM813 286l43-15 63 18 21 38-34 29-61-9-38-28z"/></g><g><circle cx="234" cy="159" r="7" fill="#69dccb"/><circle cx="234" cy="159" r="19" fill="none" stroke="#69dccb" stroke-opacity=".5"><animate attributeName="r" values="9;26;9" dur="4s" repeatCount="indefinite"/></circle><circle cx="558" cy="172" r="7" fill="#b2a8e9"/><circle cx="558" cy="172" r="19" fill="none" stroke="#b2a8e9" stroke-opacity=".5"><animate attributeName="r" values="9;25;9" dur="3.7s" repeatCount="indefinite"/></circle><circle cx="705" cy="275" r="7" fill="#69dccb"/><circle cx="705" cy="275" r="19" fill="none" stroke="#69dccb" stroke-opacity=".5"><animate attributeName="r" values="9;25;9" dur="4.2s" repeatCount="indefinite"/></circle></g><text x="28" y="442" fill="#85aab5" font-size="11" letter-spacing="2">SYNTHETIC SAMPLE MAP · NOT REAL INCIDENT LOCATIONS</text></svg>';
-    p.append(map);
-    const legend=el("div","atlas-legend");legend.innerHTML='<span><i></i> Fictional user-shared SOS point</span><span><i class="purple"></i> Fictional public IOC point</span>';p.append(legend);
-    p.append(el("div","callout","Production maps are limited to explicit one-time SOS GPS shares and analyst-entered approximate public IOC locations. IP geolocation does not identify a person or show live movement."));
-    root.append(p);
+    root.append(renderGlobePanel());
+    const boundary = panel("Location and attribution boundary", "What the current prototype can and cannot show");
+    boundary.append(
+      el("p", "", "This globe is an interface preview using synthetic regional activity values. The current demo cases do not carry verified geographic origin metadata, so the map must not be read as evidence of where a claim originated."),
+      el("p", "", "For production analytics, the backend should aggregate consented or otherwise lawfully collected, coarse regional metadata. Do not infer a person's location from an IP address or map a user without a valid basis.")
+    );
+    root.append(boundary);
   }
+
   function validPublicIpv4(value) {
     const parts=value.split(".");
     if(parts.length!==4||parts.some(x=>!/^(0|[1-9]\d{0,2})$/.test(x)||Number(x)>255))return false;
@@ -856,6 +943,16 @@
   function renderUserCasesShortcut(root) { renderCaseWorkspace(root,false); }
 
   function renderPlaceholder(root) { root.append(el("div","empty-state","This module is not available in the selected role.")); }
+
+  $("#theme-select").addEventListener("change", () => {
+    preferences.theme = $("#theme-select").value;
+    applyPreferences(); savePreferences(); toast("Theme updated.");
+  });
+  $("#font-size-select").addEventListener("change", () => {
+    preferences.textSize = $("#font-size-select").value;
+    applyPreferences(); savePreferences(); toast("Text size updated.");
+  });
+  applyPreferences();
 
   $("#demo-login").addEventListener("submit",event=>{
     event.preventDefault();
