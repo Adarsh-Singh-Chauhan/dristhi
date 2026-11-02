@@ -110,7 +110,7 @@ The demo is a public, fictional sandbox with separate User and Superadmin worksp
 | Mobile / User | `demo.user@drishti.in` | `DRISHTI-USER-40` |
 | Superadmin control room | `demo.superadmin@drishti.in` | `DRISHTI-ADMIN-40` |
 
-1. Open [Try the demo](https://dristhi-five.vercel.app/frontend/demo.html).
+1. Open [Try the demo](https://dristhi-five.vercel.app/demo.html).
 2. Launch the User or Superadmin role card, or enter the demo ID and password manually.
 3. In the User workspace, inspect the Overview, run an analysis, create a case file, browse My case files, submit a sample SOS, manage fictional trusted contacts and read notifications.
 4. Use **Switch demo role** without ending the session. This returns to the role chooser but keeps the same sample data and original 40-minute expiry.
