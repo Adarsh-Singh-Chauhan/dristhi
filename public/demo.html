@@ -7,7 +7,7 @@
 <title>DRISHTI — Interactive Product Sandbox</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/demo.css?v=20261102">
+<link rel="stylesheet" href="/demo.css?v=20261102-ui">
 </head>
 <body>
 <section id="login-screen" class="login-screen">
@@ -47,7 +47,7 @@
     </div>
   </aside>
   <main class="main-shell">
-    <header class="topbar"><div class="breadcrumb"><span>DRISHTI</span><i>/</i><b id="page-breadcrumb">Overview</b></div><div class="topbar-actions"><span class="sandbox-label"><i></i> SANDBOX · SAMPLE DATA</span><a href="/guide.html">Help & guide ↗</a><button id="top-switch" class="top-switch" type="button">Switch role</button></div></header>
+    <header class="topbar"><div class="breadcrumb"><span>DRISHTI</span><i>/</i><b id="page-breadcrumb">Overview</b></div><div class="topbar-actions"><span class="sandbox-label"><i></i> SANDBOX · SAMPLE DATA</span><details class="appearance-menu"><summary>◐ Appearance</summary><div class="appearance-popover"><label for="theme-select">Theme<select id="theme-select"><option value="midnight">Midnight</option><option value="ocean">Ocean</option><option value="violet">Violet</option><option value="light">Light</option></select></label><label for="font-size-select">Text size<select id="font-size-select"><option value="standard">Standard · 100%</option><option value="comfortable">Comfortable · 115%</option><option value="large">Large · 130%</option></select></label><small>Saved on this device</small></div></details><a href="/guide.html">Help & guide ↗</a><button id="top-switch" class="top-switch" type="button">Switch role</button></div></header>
     <div class="mobile-nav-wrap"><nav id="mobile-nav" class="mobile-nav" aria-label="Mobile demo sections"></nav></div>
     <div class="content-wrap"><div class="page-heading"><div><span class="eyebrow" id="page-kicker">WORKSPACE / USER</span><h1 id="page-title">Good morning. <em>Welcome back.</em></h1><p id="page-description">A calm place to inspect information before sharing it.</p></div><div class="page-date" id="page-date"></div></div>
     <div class="demo-disclaimer"><span>◈</span><div><b>Interactive demo environment</b><small>Sample records only. Changes stay in this browser tab and are never written to production.</small></div><span class="demo-pill">DEMO</span></div>
@@ -57,5 +57,5 @@
   </main>
 </section>
 <div id="toast-region" class="toast-region" aria-live="polite"></div>
-<script src="/demo.js?v=20261102" defer></script>
+<script src="/demo.js?v=20261102-ui" defer></script>
 </body></html>
