@@ -156,5 +156,5 @@ Older `/frontend/...` links redirect to these public routes.
 
 ## 11. Multilingual analysis research status
 
-The repository includes mBERT and XLM-RoBERTa training/evaluation scripts and a NetworkX graph-metrics research utility under `ml/`. These tools are not connected to the production analysis API. The deployed analyser remains the rule-based baseline until a licensed, human-verified corpus has been supplied, training has completed, language-wise evaluation has passed and production integration has been reviewed. The graph utility only accepts analyst-prepared pseudonymous public interaction edges; it does not scrape platforms or declare accounts to be bots.
+The repository includes mBERT and XLM-RoBERTa training/evaluation scripts and a NetworkX graph-metrics research utility under `ml/`. These tools are not connected to the production analysis API. A Gemini-based threat Q&A service is also not connected. The deployed analyser remains the rule-based baseline until a licensed, human-verified corpus has been supplied, training has completed, language-wise evaluation has passed and production integration has been reviewed. The graph utility only accepts analyst-prepared pseudonymous public interaction edges; it does not scrape platforms or declare accounts to be bots.
 
