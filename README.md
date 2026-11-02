@@ -390,7 +390,7 @@ Contributions are welcome in accessibility, security review, multilingual evalua
 
 Any new model, data collection or platform integration should document provenance, licensing, consent, limitations, false positives, false negatives and human-review requirements.
 
-## 15. Contact
+## 17. Contact
 
 **Adarsh Singh Chauhan**
 
