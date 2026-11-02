@@ -92,6 +92,7 @@ graph_signals.py accepts an analyst-prepared CSV with `source_actor_hash`, `targ
 - No unauthorised scraping with snscrape.
 - No API keys or social-platform credentials.
 - No Gemini key, external LLM call or chatbot integration.
+- No citation-grounded Gemini threat Q&A assistant.
 - No production model weights or claim that a model has already been trained.
 
 See docs/ARCHITECTURE.md for the deployment and trust boundaries.
