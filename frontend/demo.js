@@ -864,27 +864,14 @@
   $("#exit-demo").addEventListener("click",()=>endSession(false));
 
   // Route selection and views that depend on role are intentionally local to this simulator.
-  const originalRenderPage=renderPage;
   // Replace the generic nav action after workspace setup with a role-aware page renderer.
-  function renderRolePage() {
-    if(!session)return;
-    if(activePage==="safety" && session.role==="admin") return renderSOSQueue($("#demo-content"));
-    if(activePage==="notices" && session.role==="user") return renderNoticesUser($("#demo-content"));
-    originalRenderPage();
-  }
   // Role-specific route normalisation.
   const originalNavigate=navigate;
   navigate=function(page) {
-    if(session.role==="user" && page==="notices") page="safety";
     if(session.role==="admin" && page==="safety") page="sos-queue";
     originalNavigate(page);
   };
   // Update nav links to include notice centre for users.
-  function roleNavPatched() {
-    return roleNav();
-  }
-  const restore=(()=>{})();
-
   // The original renderer maps page IDs to the page implementations above.
   // User safety view includes an in-app notices list at the top.
   const originalSafety=renderSafety;
