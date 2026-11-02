@@ -116,7 +116,7 @@ See the full [architecture document](docs/ARCHITECTURE.md) and illustrated [user
 | Global signal atlas | Plot consented SOS GPS snapshots and analyst-entered approximate IOC locations | Superadmin |
 | Audit trail | Review privileged actions and case / IOC changes | Superadmin |
 | Mobile access | Responsive PWA shell, home-screen installation and cached static interface | User |
-| Guided demo | Fictional user and Superadmin sandbox, session limited to 40 minutes | Public demo visitor |
+| Guided demo | Full interactive user and Superadmin workspaces, shared sample records, role switching and a 40-minute session | Public demo visitor |
 
 ### What the Superadmin can handle
 
@@ -141,27 +141,59 @@ The global map is an incident-context view—not a people-tracking system.
 - DRISHTI does not silently capture visitor IPs, identify a person from an IP address or show someone's live movement.
 - Private, local and reserved IP ranges are rejected by the IOC API.
 
-## 6. The 40-minute public demo
+## 6. The 40-minute interactive product demo
 
-**Available as a browser-only product tour.**
+**A browser-only, role-based product sandbox with end-to-end sample workflows.**
 
-[**Open the guided DRISHTI demo**](https://dristhi-five.vercel.app/frontend/demo.html)
+[**Open the DRISHTI interactive demo**](https://dristhi-five.vercel.app/frontend/demo.html)
 
 Two fictional demo roles are available:
 
 | Demo role | Demo ID | Password |
 | --- | --- | --- |
 | Mobile / User | `demo.user@drishti.in` | `DRISHTI-USER-40` |
-| Superadmin tour | `demo.superadmin@drishti.in` | `DRISHTI-ADMIN-40` |
+| Superadmin control room | `demo.superadmin@drishti.in` | `DRISHTI-ADMIN-40` |
 
-The demo:
-- Starts a 40-minute countdown when a role signs in.
-- Provides a mobile-user walkthrough and a separate Superadmin-tour experience.
-- Uses fictional sample messages, cases, status updates and map points.
-- Stores demo changes in the current browser tab's `sessionStorage`.
-- Clears the local demo session and sample data when the timer expires or the user exits.
+### User workspace modules
 
-**Demo security boundary:** these credentials are intentionally public and only enter the isolated browser simulator. They cannot sign into production, access real user records or perform real Superadmin actions. The timer is client-side for a guided tour; it is not a production authentication/session control.
+- **Overview:** personal case counts, pending reviews, notifications and recent activity.
+- **Analyse a claim:** select a platform, enter a public claim or load a sample, inspect the review-priority score, matched signals and verification checklist.
+- **My case files:** search and filter submitted sample cases, open a case detail and inspect its evidence summary and timeline.
+- **Alerts & SOS:** view notices, submit a fictional internal safety request and follow its sample status.
+- **Trusted contacts:** add and remove fictional contacts for the safety workflow.
+- **Analysis history:** inspect the analyses run during the demo.
+- **Guide and methodology:** understand the steps, baseline rules and limitations.
+
+### Superadmin workspace modules
+
+- **Overview:** open case queue, SOS requests, IOC entries and audit-event counts.
+- **Evidence case desk:** open any sample case, add evidence URLs and a written evidence summary, record reviewer notes and save a review outcome.
+- **SOS review queue:** review and update sample request status.
+- **Global signal atlas:** inspect explicitly labelled synthetic map points.
+- **Threat intelligence:** add demo-only public IP/domain examples and update their sample status.
+- **User accounts:** inspect a read-only fictional account directory.
+- **In-app notices:** compose sample notices that appear in the user notification centre.
+- **Audit trail:** inspect privileged actions recorded during the demo.
+
+### Follow one case across both roles
+
+1. Sign in as the Mobile / User role and open **Analyse a claim**.
+2. Run a sample analysis and choose **Create a case file**.
+3. Open **My case files** and note the generated case ID.
+4. Use **Switch demo role** in the left sidebar or top bar. Choose the Superadmin role. The existing case remains in the same sample dataset and the 40-minute countdown does not reset.
+5. Open **Evidence case desk**, select the case, add a source URL and evidence summary, then save a review decision.
+6. Switch back to the User role and confirm the case status and reviewer evidence in **My case files**.
+
+The Superadmin demo enforces the demonstration workflow rule that a final outcome (verified false, supported by sources or misleading context) needs an evidence summary and at least one HTTP/HTTPS source URL. No external URL lookup, publication, takedown or notification is performed.
+
+### Session and data boundary
+
+- A 40-minute countdown starts when the first demo role launches.
+- Switching between demo roles preserves the same expiry time and sample records.
+- Demo records are stored in the active browser tab's `sessionStorage`; they are not sent to the production API or persisted in a database.
+- Exiting or expiring the demo clears the local session and sample changes.
+- The timer and role selection are client-side demonstration controls—not production authentication or a security boundary.
+- Public demo credentials cannot access real users, production case files or the real Superadmin console.
 
 ## 7. Current analysis methodology and limitations
 
