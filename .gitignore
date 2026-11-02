@@ -14,3 +14,12 @@ data/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Multilingual ML datasets, checkpoints and local model artefacts
+artifacts/
+ml/outputs/
+ml/datasets/
+ml/raw-data/
+*.safetensors
+*.pt
+*.pth
