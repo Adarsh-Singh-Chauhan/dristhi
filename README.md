@@ -251,6 +251,7 @@ The current baseline does not independently browse the web to check sources, aut
 ### Planned research (not represented as implemented)
 
 - Evaluate mBERT / XLM-RoBERTa on properly sourced Hindi, English and code-mixed datasets.
+- A Gemini-based threat Q&A assistant with cited-source retrieval is a possible future integration; no live Gemini service is configured.
 - Source registry and fact-check publisher integrations with provenance.
 - OCR, image provenance and media-forensics research.
 - Official / approved platform API integrations for public content.
