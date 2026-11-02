@@ -537,10 +537,11 @@
   }
 
   function renderCaseWorkspace(root,isAdmin) {
+    root.replaceChildren();
     let cases=getVisibleCases().slice().sort((a,b)=>b.updated_at.localeCompare(a.updated_at));
     if(caseFilter!=="all")cases=cases.filter(c=>c.status===caseFilter);
     if(caseSearch)cases=cases.filter(c=>(c.title+" "+c.id+" "+c.category).toLowerCase().includes(caseSearch.toLowerCase()));
-    if(!selectedCaseId || !getVisibleCases().some(c=>c.id===selectedCaseId))selectedCaseId=cases[0]?.id||"";
+    if(!selectedCaseId || !cases.some(c=>c.id===selectedCaseId))selectedCaseId=cases[0]?.id||"";
     const layout=el("div","case-layout");
     const left=panel(isAdmin?"Review queue":"Submitted by you",isAdmin?db.cases.length+" demo case files across sample reporters":getOwnCases().length+" case files in your sample account");
     const tools=el("div","form-grid");
