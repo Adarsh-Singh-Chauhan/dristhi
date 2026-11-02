@@ -2,7 +2,7 @@
   "name": "DRISHTI — Information Integrity Workspace",
   "short_name": "DRISHTI",
   "description": "Pause. Verify. Understand. An explainable information-integrity workspace.",
-  "start_url": "/",
+  "start_url": "/app.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
