@@ -5,14 +5,18 @@ This guide covers the current website and the browser-only demo. For system desi
 ## 1. Start here
 
 - Public website: [dristhi-five.vercel.app](https://dristhi-five.vercel.app/)
-- Main user workspace: [Open workspace](https://dristhi-five.vercel.app/frontend/)
-- 40-minute guided demo: [Open demo](https://dristhi-five.vercel.app/frontend/demo.html)
+- Main user workspace: [Open workspace](https://dristhi-five.vercel.app/app.html)
+- 40-minute guided demo: [Open demo](https://dristhi-five.vercel.app/demo.html)
 - API documentation: [Swagger UI](https://dristhi-five.vercel.app/docs)
-- Mobile app help: [PWA install guide](../frontend/guide.html)
+- Mobile app help: [PWA install guide](https://dristhi-five.vercel.app/guide.html)
 
 ## 2. User workspace — analyse a claim
 
 ![Illustrative DRISHTI user workspace](assets/user-workspace-screen.svg)
+
+![Illustrative DRISHTI phone workspace](assets/mobile-user-screen.svg)
+
+*The desktop and phone images are representative screen illustrations, not real account screenshots.*
 
 1. Open the workspace and choose **Overview**.
 2. Paste a public message or claim that you are authorised to review. Avoid passwords, private group messages and personal data.
@@ -24,7 +28,7 @@ This guide covers the current website and the browser-only demo. For system desi
 
 ### What the current analysis result means
 
-The production baseline is deterministic and rule-based. It can flag selected urgency terms, forwarding pressure, in-text authority claims, panic wording, short links and formatting patterns. It does not fetch the web, inspect videos/images, verify a government source or run a trained mBERT/XLM-RoBERTa model.
+The production baseline is deterministic and rule-based. It can flag selected urgency terms, forwarding pressure, in-text authority claims, panic wording, short links and formatting patterns. It does not fetch the web, inspect videos/images, verify a government source or run a trained mBERT/XLM-RoBERTa model. An offline research pipeline exists in `ml/` but is not connected to the live API and has no trained weights; see [ML pipeline notes](../ml/README.md).
 
 ## 3. Create and track a case file
 
@@ -62,7 +66,7 @@ A signal score by itself cannot set any of these final outcomes.
 
 ![Illustrative DRISHTI Superadmin control room](assets/superadmin-control-room.svg)
 
-1. Open the separate [Superadmin login](https://dristhi-five.vercel.app/frontend/admin.html).
+1. Open the separate [Superadmin login](https://dristhi-five.vercel.app/admin.html).
 2. Sign in using the account promoted through the one-time first-Superadmin bootstrap procedure. Do not use a public demo password for a production account.
 3. Review the **Evidence & case review queue**.
 4. Open the user's submitted source and check primary or independent sources.
@@ -138,3 +142,19 @@ The demo validates the URL format only. It does not fetch, verify or endorse the
 The live app's account-based functionality needs a persistent PostgreSQL database configured as the Vercel `DATABASE_URL` environment variable. The connected Vercel project currently has no `DATABASE_URL`. Until it is configured, anonymous analysis and static pages can be viewed, but production sign-in, persistent case files, history, alerts, SOS and the real Superadmin console remain unavailable.
 
 Never put a database password, JWT secret or real administrator credential in GitHub, the public guide or the demo page.
+
+## 10. Public product routes
+
+- Landing page: https://dristhi-five.vercel.app/
+- User workspace: https://dristhi-five.vercel.app/app.html
+- Guided 40-minute demo: https://dristhi-five.vercel.app/demo.html
+- Illustrated guide: https://dristhi-five.vercel.app/guide.html
+- Superadmin console: https://dristhi-five.vercel.app/admin.html
+- Alerts & SOS: https://dristhi-five.vercel.app/alerts.html
+
+Older `/frontend/...` links redirect to these public routes.
+
+## 11. Multilingual analysis research status
+
+The repository includes mBERT and XLM-RoBERTa training/evaluation scripts and a NetworkX graph-metrics research utility under `ml/`. These tools are not connected to the production analysis API. The deployed analyser remains the rule-based baseline until a licensed, human-verified corpus has been supplied, training has completed, language-wise evaluation has passed and production integration has been reviewed. The graph utility only accepts analyst-prepared pseudonymous public interaction edges; it does not scrape platforms or declare accounts to be bots.
+
