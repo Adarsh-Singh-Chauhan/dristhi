@@ -9,6 +9,8 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from datetime import date
+from urllib.parse import urlparse
 
 import pandas as pd
 from datasets import Dataset
@@ -50,6 +52,15 @@ def load_and_validate(path: Path) -> pd.DataFrame:
     for column in REQUIRED_COLUMNS - {"split"}:
         if (frame[column] == "").any():
             raise ValueError(f"Every row must include provenance/content field: {column}")
+    for row_number, source_url in enumerate(frame["source_url"], start=2):
+        parsed = urlparse(source_url)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError(f"Row {row_number}: source_url must be an absolute HTTP(S) URL.")
+    for row_number, verified_at in enumerate(frame["verified_at"], start=2):
+        try:
+            date.fromisoformat(verified_at[:10])
+        except ValueError as exc:
+            raise ValueError(f"Row {row_number}: verified_at must begin with an ISO date (YYYY-MM-DD).") from exc
     invalid_labels = sorted(set(frame["label"]) - set(LABELS))
     if invalid_labels:
         raise ValueError("Unsupported labels: " + ", ".join(invalid_labels))
