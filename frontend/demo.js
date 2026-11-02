@@ -902,11 +902,26 @@
     const saved=JSON.parse(sessionStorage.getItem(sessionKey)||"null");
     if(saved&&saved.expiresAt>Date.now()&&accounts[saved.role]&&saved.email===accounts[saved.role].email) {
       session=saved;renderWorkspace();clearInterval(timerHandle);timerHandle=window.setInterval(updateTimer,1000);updateTimer();
-    } else if(saved) { sessionStorage.removeItem(sessionKey); }
-    if(!session && Number(sessionStorage.getItem(expiryKey)||0)>Date.now()) {
+    } else if(saved) {
+      sessionStorage.removeItem(sessionKey);
+      sessionStorage.removeItem(expiryKey);
+      sessionStorage.removeItem(dataKey);
+      db=seedData();
+    }
+    const pendingExpiry=Number(sessionStorage.getItem(expiryKey)||0);
+    if(!session && pendingExpiry>Date.now()) {
       clearInterval(timerHandle);
       timerHandle=window.setInterval(updateTimer,1000);
       updateTimer();
+    } else if(!session && pendingExpiry>0) {
+      sessionStorage.removeItem(expiryKey);
+      sessionStorage.removeItem(dataKey);
+      db=seedData();
     }
-  } catch (_) { sessionStorage.removeItem(sessionKey); }
+  } catch (_) {
+    sessionStorage.removeItem(sessionKey);
+    sessionStorage.removeItem(expiryKey);
+    sessionStorage.removeItem(dataKey);
+    db=seedData();
+  }
 })();
