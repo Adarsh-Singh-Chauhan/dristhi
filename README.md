@@ -7,10 +7,10 @@
 **An information-integrity and defensive cyber-incident review workspace.**
 
 [![Live website](https://img.shields.io/badge/LIVE%20WEBSITE-Open%20DRISHTI-65d9c8?style=for-the-badge&logo=vercel&logoColor=071816)](https://dristhi-five.vercel.app/)
-[![Try demo](https://img.shields.io/badge/40--MIN%20DEMO-Try%20both%20roles-173c4d?style=for-the-badge&logo=googlechrome&logoColor=white)](https://dristhi-five.vercel.app/frontend/demo.html)
+[![Try demo](https://img.shields.io/badge/40--MIN%20DEMO-Try%20both%20roles-173c4d?style=for-the-badge&logo=googlechrome&logoColor=white)](https://dristhi-five.vercel.app/demo.html)
 [![API docs](https://img.shields.io/badge/API-Swagger%20Docs-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://dristhi-five.vercel.app/docs)
 
-[User guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Security notes](SECURITY.md) · [Supabase setup](docs/SUPABASE-FREE-SETUP.md)
+[User guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [ML research pipeline](ml/README.md) · [Security notes](SECURITY.md) · [Supabase setup](docs/SUPABASE-FREE-SETUP.md)
 
 **Created by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
 
@@ -145,7 +145,7 @@ The global map is an incident-context view—not a people-tracking system.
 
 **A browser-only, role-based product sandbox with end-to-end sample workflows.**
 
-[**Open the DRISHTI interactive demo**](https://dristhi-five.vercel.app/frontend/demo.html)
+[**Open the DRISHTI interactive demo**](https://dristhi-five.vercel.app/demo.html)
 
 Two fictional demo roles are available:
 
@@ -195,7 +195,37 @@ The Superadmin demo enforces the demonstration workflow rule that a final outcom
 - The timer and role selection are client-side demonstration controls—not production authentication or a security boundary.
 - Public demo credentials cannot access real users, production case files or the real Superadmin console.
 
-## 7. Current analysis methodology and limitations
+
+## 7. Public website routes
+
+The deployed Vercel project serves static product assets from `public/`. Use these public paths:
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Product landing page, published context figures, incident reports, workflow and product tour |
+| `/app.html` | Main User workspace, analysis and case-file interface |
+| `/demo.html` | Public 40-minute User + Superadmin sandbox |
+| `/guide.html` | Illustrated desktop, mobile, case-file and Superadmin user guide |
+| `/admin.html` | Production Superadmin sign-in (requires database and a promoted admin account) |
+| `/alerts.html` | User alerts, trusted contacts and internal SOS workflow |
+| `/docs` | FastAPI OpenAPI / Swagger UI |
+
+Legacy `/frontend/...` links redirect to the matching public route. The product homepage and screen illustrations distinguish external published evidence and illustrative mock screens from DRISHTI-generated output.
+
+## 8. Multilingual model and graph research
+
+The repository now includes a research-only training pipeline for **mBERT** and **XLM-RoBERTa**, plus a NetworkX graph-metrics module:
+
+- `ml/train_text_classifier.py`: trains four evidence-oriented classes using a curator-supplied CSV with language, source URL, publisher, licence and verification provenance.
+- `ml/predict_text.py`: local inference with a configurable confidence threshold and an `uncertain` abstention state.
+- `ml/graph_signals.py`: descriptive graph and synchronisation metrics for pseudonymised, analyst-prepared public interaction edges.
+- `ml/README.md`: data contract, commands, evaluation gates and responsible-use boundaries.
+
+**These are not currently connected to the production API.** No trained weights or licensed/human-verified training corpus are included in this repository. The live analyser remains the rule-based baseline described above. Do not present mBERT/XLM-RoBERTa, NetworkX bot analysis, social-platform crawling, or Gemini Q&A as live features until those components have been trained or configured, evaluated, integrated and enabled behind reviewed feature flags.
+
+A model output may prioritise human attention; it must never automatically set a case to Verified false, identify a person, label an account as a bot, trigger law-enforcement referral or take down content.
+
+## 9. Current analysis methodology and limitations
 
 The current production baseline is a **deterministic, explainable rule-based text analyser**. It is not a trained AI / machine-learning classifier and is not a web fact-checking service.
 
@@ -227,7 +257,7 @@ The current baseline does not independently browse the web to check sources, aut
 - Privacy-preserving repetition/timing and graph analysis on lawful public metadata.
 - Safe URL expansion and external reputation integrations.
 
-## 8. Technology stack
+## 10. Technology stack
 
 | Layer | Technology |
 | --- | --- |
@@ -241,7 +271,7 @@ The current baseline does not independently browse the web to check sources, aut
 | Testing | pytest |
 | Containers | Docker, Docker Compose |
 
-## 9. Architecture and API
+## 11. Architecture and API
 
 Full diagrams, trust boundaries, data model, routes and threat model: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -263,7 +293,7 @@ Important routes:
 
 Live API documentation: [Swagger UI](https://dristhi-five.vercel.app/docs).
 
-## 10. Live deployment and storage status
+## 12. Live deployment and storage status
 
 The website and static frontend are deployed on Vercel. **The connected Vercel project currently has no `DATABASE_URL` configured.**
 
@@ -276,7 +306,7 @@ This means the production health endpoint reports storage as unconfigured. Until
 
 The case-file API and interfaces are now in the repository, but durable production use is blocked by database configuration. See [Supabase Free & first-admin setup](docs/SUPABASE-FREE-SETUP.md). Do not put database credentials in this README or GitHub.
 
-## 11. Run locally
+## 13. Run locally
 
 **Requirements:** Python 3.11+, Git and a modern browser. Docker is optional.
 
@@ -329,18 +359,18 @@ docker compose up --build
 
 Never commit `.env`, database files, access tokens, password hashes or real case content.
 
-## 12. First Superadmin setup
+## 14. First Superadmin setup
 
 1. Configure a persistent PostgreSQL database using [docs/SUPABASE-FREE-SETUP.md](docs/SUPABASE-FREE-SETUP.md).
 2. Add `DATABASE_URL` and a high-entropy `JWT_SECRET_KEY` as private Vercel environment variables.
 3. Deploy and confirm `/health` reports PostgreSQL storage.
 4. Register the account that should become the real Superadmin.
 5. Follow the one-time local bootstrap steps in `scripts/promote_first_admin.py`.
-6. Sign in at [Superadmin Control Room](https://dristhi-five.vercel.app/frontend/admin.html).
+6. Sign in at [Superadmin Control Room](https://dristhi-five.vercel.app/admin.html).
 
 Never publish the production Superadmin email/password in README, demo, source code, issue comments or screenshots.
 
-## 13. Responsible use & security
+## 15. Responsible use & security
 
 - Keep analysis viewpoint-neutral: criticism, political debate, journalism, satire and dissent must not be treated as false solely because of their position or tone.
 - Never use a keyword match or score as proof.
@@ -354,7 +384,7 @@ Never publish the production Superadmin email/password in README, demo, source c
 
 This project is an engineering prototype and has not undergone an independent security audit. See [SECURITY.md](SECURITY.md) for responsible reporting guidance.
 
-## 14. Contributing
+## 16. Contributing
 
 Contributions are welcome in accessibility, security review, multilingual evaluation, source-verification workflows, documentation and responsible AI research.
 
