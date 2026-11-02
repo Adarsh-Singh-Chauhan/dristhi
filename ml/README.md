@@ -58,7 +58,7 @@ python ml/train_text_classifier.py --dataset path/to/verified_claims.csv --model
 python ml/train_text_classifier.py --dataset path/to/verified_claims.csv --model mbert --output artifacts/drishti-mbert
 ~~~
 
-The script requires explicit train/validation/test partitions, provenance fields and all four labels in training data. It rejects exact duplicate text across the full input to reduce accidental split leakage. Keep the test set untouched until model selection is complete.
+The script requires absolute HTTP(S) source URLs, ISO verification dates, explicit train/validation/test partitions, provenance fields and all four labels in training data. Its model card records overall and language-wise metrics and confusion matrices. It rejects exact duplicate text across the full input to reduce accidental split leakage. Keep the test set untouched until model selection is complete.
 
 ## Predict locally
 
@@ -84,7 +84,7 @@ Do not connect model predictions to automatic blocking, account sanctions, polic
 
 ## NetworkX research module
 
-graph_signals.py accepts an analyst-prepared CSV of **pseudonymous public interaction edges**. It reports descriptive graph metrics and synchronized activity windows. It does not identify real people, scrape platforms, decide whether an account is a bot or attribute a campaign. Source collection must comply with platform terms, applicable law, public-content restrictions and data-minimisation rules.
+graph_signals.py accepts an analyst-prepared CSV with `source_actor_hash`, `target_actor_hash` and ISO `timestamp` columns. Actor identifiers must be 64-character SHA-256 hexadecimal hashes; usernames, emails and raw platform IDs are rejected. It reports descriptive graph metrics and synchronised activity windows. It does not identify real people, scrape platforms, decide whether an account is a bot or attribute a campaign. Source collection must comply with platform terms, applicable law, public-content restrictions and data-minimisation rules.
 
 ## Not included
 
