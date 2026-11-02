@@ -1,4 +1,4 @@
-const CACHE_NAME = "drishti-shell-v4";
+const CACHE_NAME = "drishti-shell-v5";
 const SHELL_URLS = ["/", "/app.html", "/demo.html", "/demo.css", "/demo.js", "/admin.html", "/alerts.html", "/guide.html", "/styles.css", "/operations.css", "/app.js", "/admin.js", "/alerts.js", "/config.js", "/manifest.webmanifest", "/icons/drishti-icon.svg"];
 
 self.addEventListener("install", (event) => {
