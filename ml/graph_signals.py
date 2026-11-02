@@ -11,6 +11,7 @@ import json
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+import re
 
 import networkx as nx
 
@@ -40,8 +41,8 @@ def analyse_edges(path: Path, window_minutes: int = 5) -> dict:
             source = (row.get("source_actor_hash") or "").strip()
             target = (row.get("target_actor_hash") or "").strip()
             timestamp = parse_timestamp((row.get("timestamp") or "").strip())
-            if not source or not target:
-                raise ValueError("Actor identifiers must be non-empty pseudonymous values.")
+            if not re.fullmatch(r"[a-fA-F0-9]{64}", source) or not re.fullmatch(r"[a-fA-F0-9]{64}", target):
+                raise ValueError("Actor identifiers must be SHA-256 hex hashes; do not use usernames, emails or raw IDs.")
             if source == target:
                 continue
             graph.add_edge(source, target)
