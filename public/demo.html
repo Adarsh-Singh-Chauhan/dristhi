@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#09131f">
+<meta name="description" content="Explore the DRISHTI product in a 40-minute interactive sandbox for users and Superadmins.">
+<title>DRISHTI — Interactive Product Sandbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<section id="login-screen" class="login-screen">
+  <header class="login-top"><a class="brand" href="/app.html"><span class="brand-symbol">◉</span><span>DRISHTI<small>PAUSE · VERIFY · UNDERSTAND</small></span></a><a class="back-link" href="/app.html">← Back to product site</a></header>
+  <main class="login-wrap">
+    <section class="login-story">
+      <span class="eyebrow"><i class="live-dot"></i> INTERACTIVE PRODUCT SANDBOX</span>
+      <h1>See how the<br><em>whole workflow</em><br>comes together.</h1>
+      <p>Move beyond a static preview. Submit a sample claim, inspect the signals, create a case, review the evidence as Superadmin and explore the operations workspace.</p>
+      <div class="story-points"><span>◷ 40-minute timed session</span><span>◈ Fictional sample data</span><span>▣ User + Superadmin journeys</span></div>
+      <div class="demo-flow"><div><b>01</b><span>Analyse</span></div><i>→</i><div><b>02</b><span>Open case</span></div><i>→</i><div><b>03</b><span>Review</span></div><i>→</i><div><b>04</b><span>Resolve</span></div></div>
+      <div class="trust-note"><b>Isolated demonstration environment</b><span>Actions stay in this browser tab. The demo never calls the production API, cannot see real users and cannot trigger real SOS dispatches.</span></div>
+    </section>
+    <section class="login-panel">
+      <div class="panel-heading"><div><span class="eyebrow">DEMO ACCESS</span><h2>Choose a workspace.</h2><p>Both roles use the same fictional sandbox dataset so you can follow a case from submission to review.</p></div><span class="ready-pill"><i></i> READY</span></div>
+      <div class="role-cards">
+        <article class="role-card user-role"><div class="role-top"><span class="role-icon">▤</span><span class="role-caption">PUBLIC / USER</span></div><h3>Mobile user workspace</h3><p>Analyse claims, create case files, manage alerts and submit a sample safety request.</p><div class="credentials"><span>DEMO ID</span><code>demo.user@drishti.in</code><span>PASSWORD</span><code>DRISHTI-USER-40</code></div><button class="button button-primary" type="button" data-launch="user">Launch user demo <b>→</b></button></article>
+        <article class="role-card admin-role"><div class="role-top"><span class="role-icon">⌘</span><span class="role-caption">RESTRICTED / ADMIN TOUR</span></div><h3>Superadmin control room</h3><p>Review case files, record sourced decisions, manage demo SOS / IOC queues and inspect the audit trail.</p><div class="credentials"><span>DEMO ID</span><code>demo.superadmin@drishti.in</code><span>PASSWORD</span><code>DRISHTI-ADMIN-40</code></div><button class="button button-secondary" type="button" data-launch="admin">Launch Superadmin tour <b>→</b></button></article>
+      </div>
+      <details class="manual-login"><summary>Enter demo credentials manually</summary><form id="demo-login"><label for="demo-email">Demo ID</label><input id="demo-email" type="email" autocomplete="username" placeholder="demo.user@drishti.in" required><label for="demo-password">Password</label><input id="demo-password" type="password" autocomplete="current-password" placeholder="Demo password" required><button class="button button-primary" type="submit">Sign in to sandbox →</button><p id="login-message" role="status"></p></form></details>
+      <p class="login-foot">Public demo credentials are intentionally visible. Never use them for a production account. The 40-minute timer is a client-side product-tour limit, not production authentication.</p>
+    </section>
+  </main>
+  <footer class="login-footer"><span>DRISHTI · PRODUCT WALKTHROUGH</span><span><a href="/guide.html">User guide</a> · <a href="mailto:adarshsinghchauhan904@gmail.com?subject=DRISHTI%20Product%20Walkthrough">Request a live walkthrough ↗</a></span></footer>
+</section>
+
+<section id="demo-app" class="demo-app hidden">
+  <aside class="sidebar">
+    <a class="app-brand" href="/app.html"><span class="brand-symbol">◉</span><span>DRISHTI<small>DEMO WORKSPACE</small></span></a>
+    <div class="workspace-switch"><span class="switch-label">CURRENT WORKSPACE</span><div><i id="role-dot"></i><b id="workspace-role">USER WORKSPACE</b></div><small id="workspace-email">demo.user@drishti.in</small></div>
+    <nav id="demo-nav" class="sidebar-nav" aria-label="Demo sections"></nav>
+    <div class="sidebar-bottom">
+      <div class="session-card"><div><span>DEMO SESSION</span><strong id="timer">40:00</strong></div><div class="timer-track"><i id="timer-progress"></i></div><small>Session ends automatically after 40 minutes.</small></div>
+      <button id="switch-role" class="switch-role" type="button">⇄ Switch demo role</button>
+      <button id="exit-demo" class="exit-demo" type="button">End demo session ↗</button>
+      <div class="account-mini"><span class="avatar">D</span><span><b>Demo visitor</b><small>Sample account · no real access</small></span></div>
+    </div>
+  </aside>
+  <main class="main-shell">
+    <header class="topbar"><div class="breadcrumb"><span>DRISHTI</span><i>/</i><b id="page-breadcrumb">Overview</b></div><div class="topbar-actions"><span class="sandbox-label"><i></i> SANDBOX · SAMPLE DATA</span><a href="/guide.html">Help & guide ↗</a><button id="top-switch" class="top-switch" type="button">Switch role</button></div></header>
+    <div class="mobile-nav-wrap"><nav id="mobile-nav" class="mobile-nav" aria-label="Mobile demo sections"></nav></div>
+    <div class="content-wrap"><div class="page-heading"><div><span class="eyebrow" id="page-kicker">WORKSPACE / USER</span><h1 id="page-title">Good morning. <em>Welcome back.</em></h1><p id="page-description">A calm place to inspect information before sharing it.</p></div><div class="page-date" id="page-date"></div></div>
+    <div class="demo-disclaimer"><span>◈</span><div><b>Interactive demo environment</b><small>Sample records only. Changes stay in this browser tab and are never written to production.</small></div><span class="demo-pill">DEMO</span></div>
+    <section id="demo-content" class="page-content" aria-live="polite"></section>
+    </div>
+    <footer class="app-footer"><span>DRISHTI · Evidence first. Human judgement always.</span><span><a href="https://github.com/Adarsh-Singh-Chauhan/dristhi" target="_blank" rel="noreferrer">Source code ↗</a> · <a href="mailto:adarshsinghchauhan904@gmail.com?subject=DRISHTI%20Walkthrough">Contact developer ↗</a></span></footer>
+  </main>
+</section>
+<div id="toast-region" class="toast-region" aria-live="polite"></div>
+<script src="demo.js" defer></script>
+</body></html>
