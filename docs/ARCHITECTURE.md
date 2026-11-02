@@ -9,6 +9,10 @@ DRISHTI is an information-integrity and defensive cyber-incident review workspac
 
 ![DRISHTI system architecture](assets/architecture-overview.svg)
 
+![Illustrative mobile user workspace](assets/mobile-user-screen.svg)
+
+The mobile image is a UI concept for the responsive PWA, not a screenshot of a live account.
+
 ## 1. Product roles
 
 | Role | Access | Responsibility |
@@ -41,14 +45,31 @@ flowchart LR
 
 | Component | Current implementation | Notes |
 | --- | --- | --- |
-| Public landing page | Static HTML/CSS | Facts, real incident links, feature overview and demo entry. |
-| User workspace | HTML, CSS, vanilla JavaScript | Responsive/PWA shell; current production workspace is at `/frontend/`. |
-| Demo portal | Static HTML/CSS/JS | Two published sample IDs; 40-minute tab-scoped sandbox, not production auth. |
-| Admin console | Separate static page + JavaScript | Uses server-side API role checks for the real console. |
+| Public landing page | Static HTML/CSS under `public/` | External evidence, incident references, product workflow, feature overview and demo entry. |
+| User workspace | HTML, CSS, vanilla JavaScript | Published static route `/app.html`, backed by the FastAPI API where available. |
+| Demo portal | Static HTML/CSS/JS | Published static route `/demo.html`; two public sample roles, shared 40-minute tab-scoped sandbox, not production authentication. |
+| Admin console | Separate static page + JavaScript | Published route `/admin.html`; uses server-side role checks for every real admin API action. |
 | API | FastAPI / Python | Vercel Python function entrypoint with OpenAPI and Swagger UI. |
-| Analysis | Deterministic, explainable text rules | Triage support only; no web verification or trained ML classifier. |
+| Analysis | Deterministic, explainable text rules | Current production baseline only; no web verification or trained ML inference. |
 | Database | SQLite for local development; PostgreSQL when `DATABASE_URL` is set | Vercel filesystem is ephemeral; production account features need persistent PostgreSQL. |
 | Deployment | Vercel | Static frontend and Python API in one repository. |
+
+
+## 2A. Public route and static asset topology
+
+The Vercel project exposes the product pages from the repository's `public/` directory. The Python entrypoint (`index.py`) serves `public/index.html` at the root route. Static documents and assets are served at these paths:
+
+| Public route | Page / asset |
+| --- | --- |
+| `/` | Public landing page |
+| `/app.html` | Main user workspace |
+| `/demo.html` | Browser-only 40-minute demo |
+| `/guide.html` | Illustrated product guide |
+| `/admin.html` | Real Superadmin login and console |
+| `/alerts.html` | Alerts, trusted contacts and SOS |
+| `/images/*.svg` | Illustrative desktop, mobile, admin and architecture screens |
+
+Legacy URLs under `/frontend/...` redirect to their public equivalents. The demo page and its JavaScript/CSS are static assets and do not call the production API.
 
 ## 3. Claim analysis and case-file flow
 
@@ -191,6 +212,20 @@ Vercel's current environment does not contain `DATABASE_URL`. Until a persistent
 - Automated threat-feed ingestion, sandboxed URL expansion and reputation checks.
 - Production-native Android/iOS applications; current phone experience is a PWA.
 
+
+## 8A. Multilingual model and graph research boundary
+
+The optional `ml/` directory is a separate, offline research workflow. It does not run inside the current production API.
+
+- mBERT and XLM-RoBERTa training requires a privately curated, licensed and human-verified dataset.
+- The dataset contract preserves language, source URL, source publisher, reuse licence, verification timestamp and curator-assigned train/validation/test split.
+- The training script reports aggregate and per-language validation/test results and writes a dataset-hash model card.
+- Local inference abstains below its confidence threshold. The output is only a triage signal.
+- `ml/graph_signals.py` provides descriptive NetworkX metrics over pseudonymised public interaction edges supplied by an analyst. It does not scrape social platforms, identify people, declare bots or attribute campaigns.
+- No trained weights, private message corpus, social-platform API credentials or Gemini configuration are supplied in the repository.
+
+Before a model is considered for production, require independent language-wise evaluation, calibration, false-positive/false-negative review, licence/consent validation, source provenance, model versioning and a rollback mechanism. Model output must never directly set a conclusive case status or trigger moderation.
+
 ## 9. Local run
 
 ~~~bash
@@ -215,7 +250,7 @@ For hosted deployment, set `DATABASE_URL`, `JWT_SECRET_KEY` and `CORS_ORIGINS` a
 
 ## 10. Demo accounts
 
-The 40-minute demo page uses fictional browser-only credentials:
+The public `/demo.html` page uses fictional browser-only credentials:
 
 | Demo role | Demo ID | Password |
 | --- | --- | --- |
