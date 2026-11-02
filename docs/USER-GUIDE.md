@@ -97,22 +97,41 @@ DRISHTI's current mobile experience is an installable Progressive Web App (PWA).
 
 The app shell can open when cached. Login, API analysis, case persistence and admin actions still require the backend and configured database. This is not currently a native Play Store APK or App Store app.
 
-## 8. Try the 40-minute product demo
+## 8. Try the 40-minute interactive product demo
 
-The demo is a separate, public, fictional sandbox. It does not use the production API or grant access to real accounts.
+The demo is a public, fictional sandbox with separate User and Superadmin workspaces. It does not call the production API or access real accounts.
 
-| Role | Demo ID | Password |
+| Demo role | Demo ID | Password |
 | --- | --- | --- |
 | Mobile / User | `demo.user@drishti.in` | `DRISHTI-USER-40` |
-| Superadmin tour | `demo.superadmin@drishti.in` | `DRISHTI-ADMIN-40` |
+| Superadmin control room | `demo.superadmin@drishti.in` | `DRISHTI-ADMIN-40` |
 
 1. Open [Try the demo](https://dristhi-five.vercel.app/frontend/demo.html).
-2. Select one of the two demo roles.
-3. Enter the demo ID and password above (the quick-fill controls can fill them).
-4. Explore analysis, sample case creation, the Superadmin review queue and the sample global atlas.
-5. The timer counts down from 40 minutes. At expiry, the demo session and sample case data are cleared from that tab.
+2. Launch the User or Superadmin role card, or enter the demo ID and password manually.
+3. In the User workspace, inspect the Overview, run an analysis, create a case file, browse My case files, submit a sample SOS, manage fictional trusted contacts and read notifications.
+4. Use **Switch demo role** without ending the session. This returns to the role chooser but keeps the same sample data and original 40-minute expiry.
+5. In the Superadmin workspace, open **Evidence case desk**, select the case created by the demo user, add an evidence summary and one or more source URLs, then save a review status.
+6. Explore SOS queue, Global signal atlas, Threat intelligence, User accounts, In-app notices and Audit trail.
+7. Switch back to the User workspace and check how the reviewed case appears in My case files.
 
-Demo actions are stored in browser `sessionStorage`; they are not saved to the production backend. These public credentials must never be used as real account credentials.
+### Evidence review in the demo
+
+The Superadmin tour allows these sample case states: Received, Under review, Verified false, Supported by sources, Misleading context, Insufficient evidence and Closed.
+
+Before saving a final outcome (Verified false, Supported by sources or Misleading context), the demo requires:
+- A written evidence summary.
+- At least one valid HTTP/HTTPS evidence URL.
+
+The demo validates the URL format only. It does not fetch, verify or endorse the source. The outcome is a fictional demonstration record, not a real fact-check.
+
+### Timer and sample-data handling
+
+- The countdown starts once the first role launches and runs for 40 minutes.
+- Switching roles does not reset the timer.
+- Demo actions remain in the current tab's `sessionStorage` so a User-created case can be reviewed by the Superadmin role.
+- When the timer expires or the visitor chooses **End demo session**, the demo removes its sample records and session data from that tab.
+- Credentials and roles are public client-side simulation only. They cannot authenticate to the real backend or access production data.
+- The timer is not a secure server-enforced authentication limit.
 
 ## 9. Production setup status
 
