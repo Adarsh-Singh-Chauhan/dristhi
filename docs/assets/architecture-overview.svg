@@ -1,16 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="t d">
-<title id="t">DRISHTI architecture overview</title><desc id="d">User and superadmin interfaces connect to FastAPI role-based API, rule-based analysis, case management, threat intelligence and PostgreSQL storage.</desc>
-<rect width="1200" height="720" rx="24" fill="#08111c"/><text x="55" y="65" fill="#edf6f6" font-family="Space Grotesk,Arial" font-size="31" font-weight="600">DRISHTI / SYSTEM ARCHITECTURE</text><text x="57" y="91" fill="#7fa0ad" font-family="Arial" font-size="12">Role-based · evidence-led · privacy-scoped · deployable on Vercel</text>
-<g font-family="Arial">
-<rect x="55" y="143" width="235" height="112" rx="12" fill="#102b39" stroke="#4f8f8b"/><text x="78" y="176" fill="#72dfcf" font-size="12" font-weight="700">USER PWA</text><text x="78" y="201" fill="#d9e8e9" font-size="14">Responsive workspace</text><text x="78" y="222" fill="#8fa9b4" font-size="10">Claim · History · Cases · SOS</text>
-<rect x="55" y="294" width="235" height="112" rx="12" fill="#17243a" stroke="#6e72a7"/><text x="78" y="327" fill="#b3a7e9" font-size="12" font-weight="700">SUPERADMIN CONSOLE</text><text x="78" y="352" fill="#d9e8e9" font-size="14">Restricted operations</text><text x="78" y="373" fill="#8fa9b4" font-size="10">Review · IOC · Users · Audit</text>
-<rect x="374" y="205" width="256" height="150" rx="14" fill="#12313b" stroke="#57aa9c" stroke-width="1.5"/><text x="399" y="241" fill="#7de0d0" font-size="12" font-weight="700">FASTAPI SERVICE</text><text x="399" y="269" fill="#e9f4f4" font-size="18" font-weight="700">Auth &amp; Role Gate</text><text x="399" y="295" fill="#9db5be" font-size="11">JWT · User / Superadmin</text><text x="399" y="317" fill="#9db5be" font-size="11">Validation · Ownership checks</text>
-<rect x="716" y="125" width="205" height="98" rx="11" fill="#172b3a" stroke="#4c8190"/><text x="737" y="157" fill="#91d4d2" font-size="11" font-weight="700">ANALYSIS ENGINE</text><text x="737" y="181" fill="#e0eded" font-size="13">Explainable baseline</text><text x="737" y="201" fill="#849eaa" font-size="9">Review-priority signals only</text>
-<rect x="716" y="248" width="205" height="98" rx="11" fill="#172b3a" stroke="#4c8190"/><text x="737" y="280" fill="#91d4d2" font-size="11" font-weight="700">CASE MANAGEMENT</text><text x="737" y="304" fill="#e0eded" font-size="13">Evidence &amp; outcomes</text><text x="737" y="324" fill="#849eaa" font-size="9">Human decision + audit</text>
-<rect x="716" y="371" width="205" height="98" rx="11" fill="#172b3a" stroke="#4c8190"/><text x="737" y="403" fill="#91d4d2" font-size="11" font-weight="700">THREAT INTELLIGENCE</text><text x="737" y="427" fill="#e0eded" font-size="13">Public IP / domain IOC</text><text x="737" y="447" fill="#849eaa" font-size="9">Approx GeoIP · consented GPS</text>
-<rect x="1000" y="250" width="145" height="175" rx="12" fill="#15332f" stroke="#5b9e84"/><text x="1020" y="289" fill="#a9e2c3" font-size="12" font-weight="700">POSTGRES</text><text x="1020" y="316" fill="#e8f2ef" font-size="13">Users</text><text x="1020" y="341" fill="#e8f2ef" font-size="13">Cases</text><text x="1020" y="366" fill="#e8f2ef" font-size="13">Evidence</text><text x="1020" y="391" fill="#e8f2ef" font-size="13">Audit</text>
-<g stroke="#6ccabd" stroke-width="2" fill="none"><path d="M290 199H374M290 350H335V280H374M630 280H672V174H716M630 280H716M630 300H672V420H716M921 174H962V281H1000M921 297H1000M921 420H962V391H1000"/></g>
-<g fill="#6ccabd"><path d="M366 194l9 5-9 5zM366 273l9 7-9 7zM708 167l8 7-8 7zM708 290l8 7-8 7zM708 413l8 7-8 7zM993 274l8 7-8 7z"/></g>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="790" viewBox="0 0 1200 790" role="img" aria-labelledby="t d">
+<title id="t">DRISHTI target architecture and production configuration status</title>
+<desc id="d">User PWA and Superadmin console call FastAPI authentication and role checks. FastAPI routes to a rule-based analyzer, case and evidence workflow, alerts and SOS, and a public IOC registry. PostgreSQL is the persistent production target; SQLite is for local development. The current production deployment reports storage unconfigured until DATABASE_URL is added.</desc>
+<defs>
+  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#08111c"/><stop offset="1" stop-color="#0c1b29"/></linearGradient>
+  <linearGradient id="panel" x2="1" y2="1"><stop stop-color="#153345"/><stop offset="1" stop-color="#102331"/></linearGradient>
+  <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000" flood-opacity=".22"/></filter>
+</defs>
+<rect width="1200" height="790" rx="26" fill="#070e18"/>
+<rect x="20" y="20" width="1160" height="750" rx="22" fill="url(#bg)" stroke="#233d4c"/>
+<text x="55" y="70" fill="#edf6f6" font-family="Arial,sans-serif" font-size="31" font-weight="700">DRISHTI / SYSTEM ARCHITECTURE</text>
+<text x="57" y="99" fill="#83a7b5" font-family="Arial,sans-serif" font-size="13">Role-based · evidence-led · privacy-scoped · FastAPI on Vercel</text>
+<g font-family="Arial,sans-serif" filter="url(#shadow)">
+  <rect x="55" y="150" width="235" height="112" rx="13" fill="#102b39" stroke="#4f8f8b"/>
+  <text x="78" y="183" fill="#72dfcf" font-size="12" font-weight="700">USER PWA</text>
+  <text x="78" y="209" fill="#e1eeee" font-size="15">Responsive workspace</text>
+  <text x="78" y="233" fill="#98b0ba" font-size="11">Claim · History · Cases · SOS</text>
+  <rect x="55" y="305" width="235" height="112" rx="13" fill="#17243a" stroke="#6e72a7"/>
+  <text x="78" y="338" fill="#b3a7e9" font-size="12" font-weight="700">SUPERADMIN CONSOLE</text>
+  <text x="78" y="364" fill="#e1eeee" font-size="15">Restricted operations</text>
+  <text x="78" y="388" fill="#98b0ba" font-size="11">Review · IOC · Users · Audit</text>
+  <rect x="370" y="220" width="265" height="150" rx="15" fill="#12313b" stroke="#57aa9c" stroke-width="1.5"/>
+  <text x="396" y="258" fill="#7de0d0" font-size="12" font-weight="700">FASTAPI SERVICE</text>
+  <text x="396" y="289" fill="#edf7f7" font-size="20" font-weight="700">Auth &amp; Role Gate</text>
+  <text x="396" y="318" fill="#a7c0c7" font-size="12">JWT · validation · ownership</text>
+  <text x="396" y="341" fill="#a7c0c7" font-size="12">Server-verified Superadmin role</text>
+  <rect x="700" y="126" width="220" height="100" rx="12" fill="url(#panel)" stroke="#4c8190"/>
+  <text x="723" y="159" fill="#91d4d2" font-size="11" font-weight="700">ANALYSIS ENGINE</text>
+  <text x="723" y="185" fill="#e7f1f1" font-size="14">Explainable rules</text>
+  <text x="723" y="207" fill="#90a9b4" font-size="10">Review signals · not truth score</text>
+  <rect x="700" y="254" width="220" height="100" rx="12" fill="url(#panel)" stroke="#4c8190"/>
+  <text x="723" y="287" fill="#91d4d2" font-size="11" font-weight="700">CASES &amp; EVIDENCE</text>
+  <text x="723" y="313" fill="#e7f1f1" font-size="14">Human review workflow</text>
+  <text x="723" y="335" fill="#90a9b4" font-size="10">Sources · notes · outcomes · audit</text>
+  <rect x="700" y="382" width="220" height="100" rx="12" fill="url(#panel)" stroke="#4c8190"/>
+  <text x="723" y="415" fill="#91d4d2" font-size="11" font-weight="700">OPERATIONS &amp; IOC</text>
+  <text x="723" y="441" fill="#e7f1f1" font-size="14">Alerts · SOS · public IP/domain</text>
+  <text x="723" y="463" fill="#90a9b4" font-size="10">Optional GPS snapshot · audit</text>
+  <rect x="1000" y="246" width="145" height="172" rx="13" fill="#15332f" stroke="#5b9e84"/>
+  <text x="1020" y="282" fill="#a9e2c3" font-size="12" font-weight="700">POSTGRES</text>
+  <text x="1020" y="313" fill="#e8f2ef" font-size="13">Users</text>
+  <text x="1020" y="339" fill="#e8f2ef" font-size="13">Analyses</text>
+  <text x="1020" y="365" fill="#e8f2ef" font-size="13">Cases · evidence</text>
+  <text x="1020" y="391" fill="#e8f2ef" font-size="13">SOS · alerts · audit</text>
 </g>
-<rect x="55" y="520" width="1090" height="125" rx="13" fill="#0f202d" stroke="#284555"/><text x="82" y="555" fill="#68daca" font-family="Arial" font-size="11" font-weight="700" letter-spacing="1.5">TRUST BOUNDARIES</text><text x="82" y="586" fill="#dbe8e9" font-family="Arial" font-size="13">User-owned records are isolated by account ownership. Superadmin routes require a server-verified role.</text><text x="82" y="612" fill="#91a9b5" font-family="Arial" font-size="11">No covert device tracking · no direct accusation from a score · no automated police / platform reporting.</text><text x="56" y="684" fill="#587384" font-family="Arial" font-size="10" letter-spacing="1.4">ARCHITECTURE OVERVIEW · CASE RECORDS &amp; ACCOUNT FEATURES REQUIRE PERSISTENT DATABASE CONFIGURATION</text>
+<g stroke="#6ccabd" stroke-width="2" fill="none">
+  <path d="M290 206H370M290 361H330V295H370"/>
+  <path d="M635 294H665V176H700M635 294H700M635 316H665V432H700"/>
+  <path d="M920 176H962V282H1000M920 304H1000M920 432H962V390H1000"/>
+</g>
+<g fill="#6ccabd">
+  <path d="M362 201l9 5-9 5zM362 288l9 7-9 7zM692 169l8 7-8 7zM692 297l8 7-8 7zM692 425l8 7-8 7zM992 275l8 7-8 7z"/>
+</g>
+<rect x="55" y="525" width="1090" height="106" rx="14" fill="#102331" stroke="#2b4b5b"/>
+<text x="82" y="559" fill="#68daca" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1.5">LOCAL DEVELOPMENT</text>
+<text x="82" y="588" fill="#e1eeee" font-family="Arial,sans-serif" font-size="15">SQLite · local file-backed database</text>
+<text x="82" y="611" fill="#91a9b5" font-family="Arial,sans-serif" font-size="11">Used for local development and automated tests; not durable Vercel production storage.</text>
+<rect x="55" y="649" width="1090" height="84" rx="13" fill="#2b2119" stroke="#a67b45"/>
+<circle cx="83" cy="681" r="6" fill="#f1bd69"/>
+<text x="102" y="684" fill="#f2cc91" font-family="Arial,sans-serif" font-size="12" font-weight="700">CURRENT PRODUCTION GATE · STORAGE UNCONFIGURED</text>
+<text x="82" y="710" fill="#e2d1b6" font-family="Arial,sans-serif" font-size="12">Live /health currently reports storage: unconfigured. Configure DATABASE_URL + JWT_SECRET_KEY and run the PostgreSQL migration before enabling accounts, saved records or admin operations.</text>
+<text x="57" y="755" fill="#587384" font-family="Arial,sans-serif" font-size="10" letter-spacing="1.2">ARCHITECTURE SEPARATES IMPLEMENTED CODE, LOCAL DEVELOPMENT, AND PRODUCTION READINESS</text>
 </svg>
