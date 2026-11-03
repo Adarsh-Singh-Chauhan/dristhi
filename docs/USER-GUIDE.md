@@ -1,160 +1,168 @@
 # DRISHTI — User & Superadmin Guide
 
-This guide covers the current website and the browser-only demo. For system design and API details, see [ARCHITECTURE.md](ARCHITECTURE.md).
+This is the working guide for the current repository. It distinguishes the live anonymous analyser, authenticated production features (which require PostgreSQL configuration), and the public browser-only demonstration.
 
-## 1. Start here
+## 1. Open DRISHTI
 
-- Public website: [dristhi-five.vercel.app](https://dristhi-five.vercel.app/)
-- Main user workspace: [Open workspace](https://dristhi-five.vercel.app/app.html)
-- 40-minute guided demo: [Open demo](https://dristhi-five.vercel.app/demo.html)
-- API documentation: [Swagger UI](https://dristhi-five.vercel.app/docs)
-- Mobile app help: [PWA install guide](https://dristhi-five.vercel.app/guide.html)
+- [Public website](https://dristhi-five.vercel.app/)
+- [User workspace](https://dristhi-five.vercel.app/app.html)
+- [40-minute guided demo](https://dristhi-five.vercel.app/demo.html)
+- [Illustrated guide](https://dristhi-five.vercel.app/guide.html)
+- [Superadmin console](https://dristhi-five.vercel.app/admin.html)
+- [Alerts & SOS](https://dristhi-five.vercel.app/alerts.html)
+- [API health](https://dristhi-five.vercel.app/health)
+- [Swagger API reference](https://dristhi-five.vercel.app/docs)
 
-## 2. User workspace — analyse a claim
+### Current production status (verified 3 November 2026)
 
-![Illustrative DRISHTI user workspace](assets/user-workspace-screen.svg)
+The Vercel health response currently reports:
 
-![Illustrative DRISHTI phone workspace](assets/mobile-user-screen.svg)
+```json
+{
+  "status": "ok",
+  "service": "drishti-api",
+  "version": "0.4.0",
+  "storage": "unconfigured"
+}
+```
 
-*The desktop and phone images are representative screen illustrations, not real account screenshots.*
+The API is deployed, but persistent account storage is not configured. Production registration/login, saved analysis history, real case files, alerts, trusted contacts, SOS records and Superadmin data operations are therefore unavailable until PostgreSQL is connected.
 
-1. Open the workspace and choose **Overview**.
-2. Paste a public message or claim that you are authorised to review. Avoid passwords, private group messages and personal data.
-3. Select where you saw it (WhatsApp, Telegram, Instagram, Facebook, X, website or other).
+## 2. Understand the three environments
+
+| Environment | What works | Data boundary |
+|---|---|---|
+| Public landing page | Product overview, navigation, workflow, guide, external evidence | Static website |
+| Anonymous live analyser | Rule-based analysis when API is healthy | No durable account history without configured storage |
+| 40-minute demo | Fictional User + Superadmin walkthrough, case handoff and sample operations | Browser `sessionStorage`; isolated from production API |
+| Local development | SQLite-backed registration, API, history and tests | Local database file |
+| Production authenticated workspace | Intended to use JWT and PostgreSQL | Blocked until persistent `DATABASE_URL` is configured |
+
+## 3. User workspace — analyse a message
+
+![DRISHTI user workspace illustration](assets/user-workspace-screen.svg)
+
+1. Open the user workspace.
+2. Paste a public claim or text you are authorised to review. Avoid passwords, credentials, private conversations and unnecessary personal data.
+3. Select the platform where you found the content.
 4. Add the original public source URL when available.
-5. Choose **Analyse message**.
-6. Read each matched indicator, the explanation and the recommended checks. A low signal score does not prove a claim is correct. A high score does not prove it is false.
-7. Look for the primary circular/announcement, publication date, original media and independent corroboration before making a decision.
+5. Submit for analysis.
+6. Read the review-priority score, matched indicators and their explanations.
+7. Use the recommended checks to look for the original publisher, date, location, original media and independent corroboration.
 
-### What the current analysis result means
+The analyser is deterministic and rule-based. It checks selected urgency, forwarding pressure, authority wording, panic wording, shortened URLs and formatting. A score is not a probability of falsity and cannot establish truth.
 
-The production baseline is deterministic and rule-based. It can flag selected urgency terms, forwarding pressure, in-text authority claims, panic wording, short links and formatting patterns. It does not fetch the web, inspect videos/images, verify a government source or run a trained mBERT/XLM-RoBERTa model. An offline research pipeline exists in `ml/` but is not connected to the live API and has no trained weights; see [ML pipeline notes](../ml/README.md).
+## 4. Sign-in and registration
 
-## 3. Create and track a case file
+The user workspace has a sign-in/register flow backed by FastAPI endpoints:
 
-1. Run an analysis on the claim.
-2. In the result panel, fill in a neutral case title and choose a category.
-3. Add context for a human reviewer. Do not include passwords or unnecessary personal information.
-4. Choose **Create case file**.
-5. Open **My case files** to view the case ID and current status.
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/auth/me`
 
-Possible case outcomes are:
+Passwords are hashed using scrypt; API sessions use JWT bearer tokens. The live production account flows are blocked while health reports `storage: unconfigured`.
 
-- **Received:** the system has accepted the case; nobody has verified the claim yet.
-- **Under review:** a human reviewer is checking the source and evidence.
-- **Verified false:** a reviewer has recorded why the claim is false/manipulated and attached at least one evidence URL.
-- **Supported by sources:** the submitted claim is supported by the cited material.
-- **Misleading context:** the media or statement may be genuine, but context, date, location or framing changes its meaning.
-- **Insufficient evidence:** available evidence does not justify a reliable conclusion.
-- **Closed:** review is closed without a stronger public conclusion.
+### Local sign-up test
 
-A signal score by itself cannot set any of these final outcomes.
+1. Follow the root README's local backend startup instructions.
+2. Open the local frontend served from `frontend/`.
+3. Choose Sign in, then switch to Create account.
+4. Register with a test email and a unique development password.
+5. Sign in and verify the user profile.
+6. Analyse a sample and check saved history.
 
-## 4. Alerts, trusted contacts and SOS
+Do not reuse a production or personal password in tests.
 
-1. Open **Alerts & SOS**.
-2. Sign in with your normal user account.
-3. Add trusted contacts that you may want to reference in an SOS submission.
-4. Enter a clear title and incident details.
-5. Add a source URL if available.
-6. Location sharing is optional. If selected, the browser asks for GPS permission and submits a one-time location snapshot with that SOS record.
-7. Check the SOS status from the same page.
+## 5. Analysis history and case files
 
-**Important:** DRISHTI's SOS is an internal review queue. It does not automatically call police, emergency services, SMS, WhatsApp or trusted contacts. In a real emergency, contact local emergency services directly.
+When persistent storage is available:
 
-## 5. Superadmin control room
+1. Sign in.
+2. Run an analysis and enable history saving.
+3. Open Analysis history to read or delete your own reports.
+4. Create a case from an analysis.
+5. Open My case files and follow the case status.
 
-![Illustrative DRISHTI Superadmin control room](assets/superadmin-control-room.svg)
+Possible statuses include received, under review, verified false, supported by sources, misleading context, insufficient evidence and closed. Evidence-backed outcomes require a reviewer summary and at least one source URL.
 
-1. Open the separate [Superadmin login](https://dristhi-five.vercel.app/admin.html).
-2. Sign in using the account promoted through the one-time first-Superadmin bootstrap procedure. Do not use a public demo password for a production account.
-3. Review the **Evidence & case review queue**.
-4. Open the user's submitted source and check primary or independent sources.
-5. Add an evidence summary, source URLs and reviewer notes.
-6. Set an outcome. The API requires a summary and at least one URL before saving verified-false, supported-by-sources or misleading-context outcomes.
-7. Review the SOS queue, publish in-app notices where appropriate, and inspect the audit trail.
+## 6. Alerts, trusted contacts and SOS
 
-The Superadmin console also has the Public IP / Domain Threat Intelligence registry. Only add public indicators that you are authorised to investigate. Each entry should include a provenance/source reference and analyst note.
+1. Open [Alerts & SOS](https://dristhi-five.vercel.app/alerts.html).
+2. Sign in with a normal user account.
+3. Add trusted contact details you want to reference in the safety workflow.
+4. Enter an incident title and details.
+5. Add a public source URL where relevant.
+6. Location sharing is optional. If enabled, the browser requests GPS permission and sends a one-time location snapshot for that SOS report.
+7. Submit and check the review status later.
 
-## 6. Global Signal Atlas & location
+**Important:** SOS is an internal review queue. It does not call emergency services, police, SMS, WhatsApp or trusted contacts automatically. For a real emergency, contact local emergency services directly.
 
-- The map plots coordinates explicitly shared by a user for an SOS or coordinates entered by a Superadmin for a public IOC.
-- GeoIP is an approximate network-region estimate, not a device's precise position.
-- VPNs, proxies, carrier networks and shared cloud egress can make estimates inaccurate.
-- DRISHTI does not silently collect visitor IPs, identify the person behind an IP or track anyone's live movement.
-- Use the map as an incident context view, not a surveillance system.
+## 7. Superadmin control room
 
-## 7. Install DRISHTI on a phone
+![DRISHTI Superadmin console illustration](assets/superadmin-control-room.svg)
 
-DRISHTI's current mobile experience is an installable Progressive Web App (PWA).
+Production setup:
 
-**Android (Chrome):**
-1. Open the HTTPS user workspace.
-2. Tap **Install app** if it appears; otherwise open the ⋮ browser menu.
-3. Choose **Install app** or **Add to Home screen**.
-4. Launch DRISHTI using its home-screen icon.
+1. Connect persistent PostgreSQL using [Supabase setup](SUPABASE-FREE-SETUP.md).
+2. Apply the SQL migration.
+3. Register the intended administrator account using the normal sign-up flow.
+4. Promote that existing account with `scripts/promote_first_admin.py` as documented in the setup guide.
+5. Open the Superadmin console and sign in.
+6. Review cases, add evidence URLs and summary, record notes, and save an outcome.
+7. Review SOS reports, manage in-app notices and public IOC entries, and inspect the audit trail.
 
-**iPhone (Safari):**
-1. Open the HTTPS user workspace in Safari.
-2. Tap **Share**.
-3. Choose **Add to Home Screen** and confirm.
+There is no public Superadmin sign-up route. Never store or publish the production admin password.
 
-The app shell can open when cached. Login, API analysis, case persistence and admin actions still require the backend and configured database. This is not currently a native Play Store APK or App Store app.
+## 8. Public 40-minute sandbox
 
-## 8. Try the 40-minute interactive product demo
+[**Open DRISHTI demo**](https://dristhi-five.vercel.app/demo.html)
 
-The demo is a public, fictional sandbox with separate User and Superadmin workspaces. It does not call the production API or access real accounts.
-
-| Demo role | Demo ID | Password |
-| --- | --- | --- |
+| Demo role | Email / ID | Password |
+|---|---|---|
 | Mobile / User | `demo.user@drishti.in` | `DRISHTI-USER-40` |
 | Superadmin control room | `demo.superadmin@drishti.in` | `DRISHTI-ADMIN-40` |
 
-1. Open [Try the demo](https://dristhi-five.vercel.app/demo.html).
-2. Launch the User or Superadmin role card, or enter the demo ID and password manually.
-3. In the User workspace, inspect the Overview, run an analysis, create a case file, browse My case files, submit a sample SOS, manage fictional trusted contacts and read notifications.
-4. Use **Switch demo role** without ending the session. This returns to the role chooser but keeps the same sample data and original 40-minute expiry.
-5. In the Superadmin workspace, open **Evidence case desk**, select the case created by the demo user, add an evidence summary and one or more source URLs, then save a review status.
-6. Explore SOS queue, Global signal atlas, Threat intelligence, User accounts, In-app notices and Audit trail.
-7. Switch back to the User workspace and check how the reviewed case appears in My case files.
+Suggested tour:
 
-### Evidence review in the demo
+1. Enter as the demo User.
+2. Open Overview and run the sample message analysis.
+3. Create a sample case file.
+4. Open My case files and note the case ID.
+5. Choose Switch demo role and enter the demo Superadmin workspace.
+6. Open Evidence case desk, select the sample case, add a source and evidence summary, then save a demo outcome.
+7. Switch back to the User role and read the updated sample case.
 
-The Superadmin tour allows these sample case states: Received, Under review, Verified false, Supported by sources, Misleading context, Insufficient evidence and Closed.
+Demo rules:
 
-Before saving a final outcome (Verified false, Supported by sources or Misleading context), the demo requires:
-- A written evidence summary.
-- At least one valid HTTP/HTTPS evidence URL.
+- Both roles share the same synthetic sample dataset for the active tab/session.
+- The 40-minute session expiry is shared across role switches.
+- Data is held in `sessionStorage` and cleared when the session expires or is exited.
+- The demo does not call the production API, access real accounts, create real notices or deliver notifications.
+- Public demo credentials are not production credentials.
 
-The demo validates the URL format only. It does not fetch, verify or endorse the source. The outcome is a fictional demonstration record, not a real fact-check.
+## 9. Install the PWA
 
-### Timer and sample-data handling
+**Android Chrome:** open the HTTPS workspace → browser menu → Install app / Add to Home screen.
 
-- The countdown starts once the first role launches and runs for 40 minutes.
-- Switching roles does not reset the timer.
-- Demo actions remain in the current tab's `sessionStorage` so a User-created case can be reviewed by the Superadmin role.
-- When the timer expires or the visitor chooses **End demo session**, the demo removes its sample records and session data from that tab.
-- Credentials and roles are public client-side simulation only. They cannot authenticate to the real backend or access production data.
-- The timer is not a secure server-enforced authentication limit.
+**iPhone Safari:** open the HTTPS workspace → Share → Add to Home Screen.
 
-## 9. Production setup status
+The service worker caches static interface files but deliberately does not cache API, health or authenticated responses. Offline access does not make account actions or analysis work without the backend.
 
-The live app's account-based functionality needs a persistent PostgreSQL database configured as the Vercel `DATABASE_URL` environment variable. The connected Vercel project currently has no `DATABASE_URL`. Until it is configured, anonymous analysis and static pages can be viewed, but production sign-in, persistent case files, history, alerts, SOS and the real Superadmin console remain unavailable.
+## 10. Troubleshooting
 
-Never put a database password, JWT secret or real administrator credential in GitHub, the public guide or the demo page.
+| Symptom | Likely cause | Action |
+|---|---|---|
+| Accounts pending | Health reports `storage: unconfigured` | Configure PostgreSQL `DATABASE_URL`, run migration, redeploy |
+| API unavailable | Backend deployment or network issue | Check [health](https://dristhi-five.vercel.app/health) and Vercel runtime logs |
+| User cannot enter Superadmin | Account role is `user` | Promote one account using the private first-admin procedure |
+| Demo data disappears | Session expired or browser tab/session ended | Start a new demo session; demo data is intentionally temporary |
+| GPS not attached | Permission denied, unavailable or timed out | Retry or submit without optional location |
+| PWA shows old assets | Browser service worker cache | Close/reopen, then clear site data or refresh after a new service worker activates |
 
-## 10. Public product routes
+## 11. Related technical documents
 
-- Landing page: https://dristhi-five.vercel.app/
-- User workspace: https://dristhi-five.vercel.app/app.html
-- Guided 40-minute demo: https://dristhi-five.vercel.app/demo.html
-- Illustrated guide: https://dristhi-five.vercel.app/guide.html
-- Superadmin console: https://dristhi-five.vercel.app/admin.html
-- Alerts & SOS: https://dristhi-five.vercel.app/alerts.html
-
-Older `/frontend/...` links redirect to these public routes.
-
-## 11. Multilingual analysis research status
-
-The repository includes mBERT and XLM-RoBERTa training/evaluation scripts and a NetworkX graph-metrics research utility under `ml/`. These tools are not connected to the production analysis API. A Gemini-based threat Q&A service is also not connected. The deployed analyser remains the rule-based baseline until a licensed, human-verified corpus has been supplied, training has completed, language-wise evaluation has passed and production integration has been reviewed. The graph utility only accepts analyst-prepared pseudonymous public interaction edges; it does not scrape platforms or declare accounts to be bots.
-
+- [System architecture](ARCHITECTURE.md)
+- [Supabase PostgreSQL and first-admin setup](SUPABASE-FREE-SETUP.md)
+- [Security policy](../SECURITY.md)
+- [ML research pipeline](../ml/README.md)
+- [Repository README](../README.md)
