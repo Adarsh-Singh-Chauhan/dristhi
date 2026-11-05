@@ -16,6 +16,7 @@
 [Product overview](https://dristhi-five.vercel.app/) · [User guide](docs/USER-GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md) · [ML research](ml/README.md) · [Database setup](docs/SUPABASE-FREE-SETUP.md)
 
 **Designed and developed by [Adarsh Singh Chauhan](https://github.com/Adarsh-Singh-Chauhan)**
+Project URL : https://drishti-five.vercel.app/
 
 </div>
 
